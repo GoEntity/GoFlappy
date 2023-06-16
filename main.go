@@ -9,7 +9,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten"
 	"github.com/hajimehoshi/ebiten/audio"
-	"github.com/hajimehoshi/ebiten/audio/wav"
+	"github.com/hajimehoshi/ebiten/audio/mp3"
 	"github.com/hajimehoshi/ebiten/ebitenutil"
 	"github.com/hajimehoshi/ebiten/inpututil"
 )
@@ -45,7 +45,7 @@ var (
 	playerSpeed        = 2
 	maxSpeed           = 5
 
-	jumpPlayer   *audio.Player
+	jumpPlayer *audio.Player
 )
 
 var menuOptions = []string{"NORMAL", "FAST", "FASTER"}
@@ -233,12 +233,12 @@ func main() {
 		log.Fatal(err)
 	}
 
-	jumpSoundFile, err := ebitenutil.OpenFile("jump.wav")
+	jumpSoundFile, err := ebitenutil.OpenFile("jump.mp3")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	jumpSound, err := wav.Decode(audioContext, jumpSoundFile)
+	jumpSound, err := mp3.Decode(audioContext, jumpSoundFile)
 	if err != nil {
 		log.Fatal(err)
 	}
