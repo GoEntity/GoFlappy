@@ -40,15 +40,15 @@ var (
 	playerScreenPos = vector{}
 
 	continuousMovement = 0
-	gravity            = 0.3
-	jumpPower          = 10
-	playerSpeed        = 2
-	maxSpeed           = 5
+	gravity            = 0.5
+	jumpPower          = 5
+	playerSpeed        = 5
+	maxSpeed           = 10
 
 	jumpPlayer *audio.Player
 )
 
-var menuOptions = []string{"NORMAL", "FAST", "FASTER"}
+var menuOptions = []string{"EASY", "NORMAL", "HELL"}
 
 type vector struct {
 	X, Y float64
@@ -58,6 +58,23 @@ type GameState int
 
 type Game struct {
 	state GameState
+}
+
+func (g *Game) Update(screen *ebiten.Image) error {
+	switch g.state {
+	case GameStateMenu:
+		g.updateMenu(screen)
+	case GameStatePlaying:
+		g.updatePlaying()
+	}
+
+	g.Draw(screen)
+
+	return nil
+}
+
+func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
+	return screenWidth, screenHeight
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
@@ -83,15 +100,6 @@ func (g *Game) drawMenu(screen *ebiten.Image) {
 	}
 }
 
-func (g *Game) drawPlaying(screen *ebiten.Image) {
-	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Translate(float64(-scrollOffset), 0)
-	screen.DrawImage(background, op)
-	op = &ebiten.DrawImageOptions{}
-	op.GeoM.Translate(playerScreenPos.X, playerScreenPos.Y)
-	screen.DrawImage(player, op)
-}
-
 func (g *Game) updateMenu(screen *ebiten.Image) {
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyDown) {
@@ -114,18 +122,29 @@ func (g *Game) updateMenu(screen *ebiten.Image) {
 			g.state = GameStatePlaying
 		case 1:
 			g.state = GameStatePlaying
-			gravity *= 2
-			jumpPower *= 2
-			playerSpeed *= 2
-			maxSpeed *= 2
+			// these variables to be replaced with enemy variables
+			// gravity *= 2
+			// jumpPower *= 2
+			// playerSpeed *= 2
+			// maxSpeed *= 2
 		case 2:
 			g.state = GameStatePlaying
-			gravity *= 3
-			jumpPower *= 3
-			playerSpeed *= 3
-			maxSpeed *= 3
+			// these variables to be replaced with enemy variables
+			// gravity *= 3
+			// jumpPower *= 3
+			// playerSpeed *= 3
+			// maxSpeed *= 3
 		}
 	}
+}
+
+func (g *Game) drawPlaying(screen *ebiten.Image) {
+	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Translate(float64(-scrollOffset), 0)
+	screen.DrawImage(background, op)
+	op = &ebiten.DrawImageOptions{}
+	op.GeoM.Translate(playerScreenPos.X, playerScreenPos.Y)
+	screen.DrawImage(player, op)
 }
 
 func (g *Game) updatePlaying() {
@@ -141,7 +160,7 @@ func handleGameInput() {
 	if ebiten.IsKeyPressed(ebiten.KeyRight) {
 		continuousMovement = 1
 	}
-	if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
+	if ebiten.IsKeyPressed(ebiten.KeySpace) {
 		playJumpSound()
 		playerVelocity.Y = -float64(jumpPower)
 	}
@@ -183,23 +202,6 @@ func movePlayer() {
 	} else if scrollOffset > backgroundWidth-screenWidth {
 		scrollOffset = backgroundWidth - screenWidth
 	}
-}
-
-func (g *Game) Update(screen *ebiten.Image) error {
-	switch g.state {
-	case GameStateMenu:
-		g.updateMenu(screen)
-	case GameStatePlaying:
-		g.updatePlaying()
-	}
-
-	g.Draw(screen)
-
-	return nil
-}
-
-func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
-	return screenWidth, screenHeight
 }
 
 func playJumpSound() {
