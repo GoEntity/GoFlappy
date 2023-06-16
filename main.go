@@ -64,7 +64,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 func (g *Game) drawMenu(screen *ebiten.Image) {
 	ebitenutil.DrawRect(screen, 0, 0, screenWidth, screenHeight, color.RGBA{R: 0, G: 0, B: 80, A: 200})
-	ebitenutil.DebugPrintAt(screen, "GOPHER FLOPPY", screenWidth/2 - 70, screenHeight/2 - 80)
+	ebitenutil.DebugPrintAt(screen, "GOPHER FLAPPY", screenWidth/2 - 70, screenHeight/2 - 80)
 	for i, pick := range menuOptions {
 		textX := screenWidth/2 - len(pick)*6
 		textY := screenHeight/2 + (i * 50)
@@ -218,7 +218,7 @@ func main() {
 		state: GameStateMenu,
 	}
 
-	ebiten.SetWindowTitle("GopherFloppy")
+	ebiten.SetWindowTitle("GOPHER FLAPPY")
 	ebiten.SetWindowSize(screenWidth, screenHeight)
 	if err := ebiten.RunGame(game); err != nil {
 		log.Fatal(err)
