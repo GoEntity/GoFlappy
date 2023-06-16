@@ -249,6 +249,9 @@ func main() {
 
 	ebiten.SetWindowTitle("GOPHER FLAPPY")
 	ebiten.SetWindowSize(screenWidth, screenHeight)
+	ebiten.SetWindowResizable(true)
+	ebiten.SetMaxTPS(60)
+
 	if err := ebiten.RunGame(game); err != nil {
 		log.Fatal(err)
 	}
