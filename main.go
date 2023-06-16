@@ -112,18 +112,14 @@ func (g *Game) updateMenu(screen *ebiten.Image) {
 		switch currentMenuOption {
 		case 0:
 			g.state = GameStatePlaying
-			// playerPosition = playerPosition
-
 		case 1:
 			g.state = GameStatePlaying
-			// playerPosition = playerPosition
 			gravity *= 2
 			jumpPower *= 2
 			playerSpeed *= 2
 			maxSpeed *= 2
 		case 2:
 			g.state = GameStatePlaying
-			// playerPosition = playerPosition
 			gravity *= 3
 			jumpPower *= 3
 			playerSpeed *= 3
@@ -147,24 +143,21 @@ func handleGameInput() {
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
 		playJumpSound()
-		// time.Sleep(10 * time.Millisecond)
 		playerVelocity.Y = -float64(jumpPower)
 	}
 }
 
 func movePlayer() {
 	playerVelocity.Y += float64(gravity)
+
 	if playerVelocity.Y > float64(maxSpeed) {
 		playerVelocity.Y = float64(maxSpeed)
 	}
+
 	playerVelocity.X = float64(continuousMovement) * float64(playerSpeed)
 
-	targetPlayerPosition := vector{
-		X: playerPosition.X + playerVelocity.X,
-		Y: playerPosition.Y + playerVelocity.Y,
-	}
-
-	playerPosition = targetPlayerPosition
+	playerPosition.X += playerVelocity.X
+	playerPosition.Y += playerVelocity.Y
 
 	playerScreenPos.X = playerPosition.X - float64(scrollOffset)
 	playerScreenPos.Y = playerPosition.Y
@@ -184,12 +177,12 @@ func movePlayer() {
 	}
 
 	scrollOffset = int(playerPosition.X) - screenWidth/2
+	
 	if scrollOffset < 0 {
 		scrollOffset = 0
 	} else if scrollOffset > backgroundWidth-screenWidth {
 		scrollOffset = backgroundWidth - screenWidth
 	}
-
 }
 
 func (g *Game) Update(screen *ebiten.Image) error {
