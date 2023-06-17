@@ -38,9 +38,9 @@ var (
 
 	continuousMovement = 0
 	gravity            = 0.5
-	jumpPower          = 5
+	jumpPower          = 10
 	playerSpeed        = 5
-	maxSpeed           = 10
+	maxSpeed           = 5
 
 	jumpPlayer *audio.Player
 )
@@ -157,7 +157,7 @@ func handleGameInput() {
 	if ebiten.IsKeyPressed(ebiten.KeyRight) {
 		continuousMovement = 1
 	}
-	if ebiten.IsKeyPressed(ebiten.KeySpace) {
+	if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
 		playJumpSound()
 		playerVelocity.Y = -float64(jumpPower)
 	}
