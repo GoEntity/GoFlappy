@@ -32,6 +32,7 @@ var (
 	player     *ebiten.Image
 	background *ebiten.Image
 	enemy      *ebiten.Image
+	door       *ebiten.Image
 
 	scrollOffset      = 0
 	currentMenuOption = menuOption_normal
@@ -39,6 +40,8 @@ var (
 	playerPosition  = vector{X: 100, Y: 350}
 	playerVelocity  = vector{}
 	playerScreenPos = vector{}
+
+	doorPosition = vector{X: backgroundWidth - 300, Y: screenHeight / 2}
 
 	continuousMovement = 0
 	gravity            = 0.5
@@ -48,10 +51,11 @@ var (
 
 	jumpPlayer *audio.Player
 
-	enemies []Enemy
+	enemies       []Enemy
 	enemyVelocity float64 = 5
 
 	firstLaunch bool = true
+	win         bool = false
 )
 
 var menuOptions = []string{"EASY", "NORMAL", "HELL"}
@@ -100,32 +104,40 @@ func (g *Game) Draw(screen *ebiten.Image) {
 }
 
 func (g *Game) drawMenu(screen *ebiten.Image) {
-    ebitenutil.DrawRect(screen, 0, 0, screenWidth, screenHeight, color.RGBA{R: 0, G: 0, B: 80, A: 150})
+	ebitenutil.DrawRect(screen, 0, 0, screenWidth, screenHeight, color.RGBA{R: 0, G: 0, B: 80, A: 150})
 
-    if firstLaunch {
-        ebitenutil.DebugPrintAt(screen, "GOPHER FLAPPY", screenWidth/2-57, screenHeight/2-80)
+	if firstLaunch {
+		ebitenutil.DebugPrintAt(screen, "GOPHER FLAPPY", screenWidth/2-57, screenHeight/2-80)
 
-        for i, pick := range menuOptions {
-            textX := screenWidth/2 - len(pick)*6
-            textY := screenHeight/2 + (i * 50)
-            if i == currentMenuOption {
-                ebitenutil.DebugPrintAt(screen, pick+" <=", textX, textY)
-            } else {
-                ebitenutil.DebugPrintAt(screen, pick, textX, textY)
-            }
-        }
-    } else if enemies == nil {
+		for i, pick := range menuOptions {
+			textX := screenWidth/2 - len(pick)*6
+			textY := screenHeight/2 + (i * 50)
+			if i == currentMenuOption {
+				ebitenutil.DebugPrintAt(screen, pick+" <=", textX, textY)
+			} else {
+				ebitenutil.DebugPrintAt(screen, pick, textX, textY)
+			}
+		}
+	} else if !win && len(enemies) == 0 {
 		ebitenutil.DebugPrintAt(screen, "Come on now...", screenWidth/2-40, screenHeight/2-90)
-        ebitenutil.DebugPrintAt(screen, "You can do better than that...", screenWidth/2-90, screenHeight/2-60)
+		ebitenutil.DebugPrintAt(screen, "You can do better than that...", screenWidth/2-90, screenHeight/2-60)
 		ebitenutil.DebugPrintAt(screen, "Is that.. all you can do..?", screenWidth/2-85, screenHeight/2-30)
-		ebitenutil.DebugPrintAt(screen, "Press Enter", screenWidth/2-30, screenHeight/2 + 30)
+		ebitenutil.DebugPrintAt(screen, "Press Enter", screenWidth/2-30, screenHeight/2+30)
 		if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
 			firstLaunch = true
 			g.drawMenu(screen)
+			// win = false
 		}
-    }
+	} else if win {
+		ebitenutil.DebugPrintAt(screen, "You are Legendary", screenWidth/2-50, screenHeight/2)
+		ebitenutil.DebugPrintAt(screen, "Press Enter", screenWidth/2-30, screenHeight/2+30)
+		if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
+			firstLaunch = true
+			g.drawMenu(screen)
+			// win = false
+		}
+	}
 }
-
 
 func (g *Game) updateMenu(screen *ebiten.Image) {
 
@@ -145,41 +157,41 @@ func (g *Game) updateMenu(screen *ebiten.Image) {
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
 
-		if g.state == GameStateMenu && enemyVelocity != 1{
+		if g.state == GameStateMenu && enemyVelocity != 1 {
 			enemyVelocity = 1
 		}
 
 		if firstLaunch {
-		switch currentMenuOption {
-		case 0:
-			g.state = GameStatePlaying
-			firstLaunch = false
-		case 1:
-			enemyVelocity += 5
-			g.state = GameStatePlaying
-			firstLaunch = false
-			// temp
-			// gravity *= 2
-			// jumpPower *= 2
-			// playerSpeed *= 2
-			// maxSpeed *= 2
-		case 2:
-			enemyVelocity += 10
-			g.state = GameStatePlaying
-			firstLaunch = false
-			// temp
-			// gravity *= 3
-			// jumpPower *= 3
-			// playerSpeed *= 3
-			// maxSpeed *= 3
+			switch currentMenuOption {
+			case 0:
+				g.state = GameStatePlaying
+				firstLaunch = false
+			case 1:
+				enemyVelocity += 5
+				g.state = GameStatePlaying
+				firstLaunch = false
+				// temp
+				// gravity *= 2
+				// jumpPower *= 2
+				// playerSpeed *= 2
+				// maxSpeed *= 2
+			case 2:
+				enemyVelocity += 10
+				g.state = GameStatePlaying
+				firstLaunch = false
+				// temp
+				// gravity *= 3
+				// jumpPower *= 3
+				// playerSpeed *= 3
+				// maxSpeed *= 3
+			}
+			scrollOffset = 0
+		} else if enemies == nil {
+			g.state = GameStateMenu
+			// enemyVelocity = 1
+			firstLaunch = true
 		}
-		scrollOffset = 0
-	} else if enemies == nil {
-		g.state = GameStateMenu
-		// enemyVelocity = 1
-		firstLaunch = true
 	}
-}
 }
 
 func (g *Game) drawPlaying(screen *ebiten.Image) {
@@ -189,13 +201,16 @@ func (g *Game) drawPlaying(screen *ebiten.Image) {
 	op = &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(playerScreenPos.X, playerScreenPos.Y)
 	screen.DrawImage(player, op)
+	op = &ebiten.DrawImageOptions{}
+	op.GeoM.Translate(doorPosition.X-float64(scrollOffset), doorPosition.Y)
+	screen.DrawImage(door, op)
 }
 
 func (g *Game) updatePlaying() {
 	handleGameInput()
 	g.movePlayer()
 
-	if rand.Intn(100) < 10 { //spawn percent chance
+	if rand.Intn(100) < 7 { //spawn percent chance
 		enemy := Enemy{
 			Position: vector{X: float64(backgroundWidth), Y: rand.Float64() * screenHeight},
 			Velocity: enemyVelocity + rand.Float64()*10,
@@ -235,12 +250,14 @@ func (g *Game) movePlayer() {
 
 	for _, e := range enemies {
 		if collide(playerPosition, e.Position) {
+			enemies = nil
 			g.state = GameStateMenu
+			win = false
 
 			playerPosition = vector{X: 100, Y: 350}
 			playerVelocity = vector{}
 			playerScreenPos = vector{}
-			enemies = nil
+
 			return
 		}
 	}
@@ -260,13 +277,14 @@ func (g *Game) movePlayer() {
 	// }
 
 	if playerScreenPos.X < 0 || playerScreenPos.X > screenWidth || playerScreenPos.Y < 0 || playerScreenPos.Y > screenHeight {
+		win = false
 		enemies = nil
 		g.state = GameStateMenu
 
 		playerPosition = vector{X: 100, Y: 350}
 		playerVelocity = vector{}
 		playerScreenPos = vector{}
-		
+
 		return
 	}
 
@@ -277,6 +295,18 @@ func (g *Game) movePlayer() {
 	} else if scrollOffset > backgroundWidth-screenWidth {
 		scrollOffset = backgroundWidth - screenWidth
 	}
+
+	if collide(playerPosition, doorPosition) {
+		enemies = nil
+		g.state = GameStateMenu
+		win = true
+
+		playerPosition = vector{X: 100, Y: 350}
+		playerVelocity = vector{}
+		playerScreenPos = vector{}
+
+		return
+	}
 }
 
 func playJumpSound() {
@@ -285,16 +315,16 @@ func playJumpSound() {
 }
 
 func drawEnemies(screen *ebiten.Image) {
-	for _, e := range enemies {
-		op := &ebiten.DrawImageOptions{}
-		op.GeoM.Translate(e.Position.X-float64(scrollOffset), e.Position.Y)
-		screen.DrawImage(enemy, op)
+		for _, e := range enemies {
+			op := &ebiten.DrawImageOptions{}
+			op.GeoM.Translate(e.Position.X-float64(scrollOffset), e.Position.Y)
+			screen.DrawImage(enemy, op)
 
-		// ebitenutil.DebugPrintAt(screen, "**", int(e.Position.X-float64(scrollOffset)), int(e.Position.Y))
-		// ebitenutil.DebugPrintAt(screen, "**", int(e.Position.X-float64(scrollOffset) + 49), int(e.Position.Y))
-		// ebitenutil.DebugPrintAt(screen, "**", int(e.Position.X-float64(scrollOffset)), int(e.Position.Y + 29))
-		// ebitenutil.DebugPrintAt(screen, "**", int(e.Position.X-float64(scrollOffset) + 49), int(e.Position.Y + 29))
-	}
+			// ebitenutil.DebugPrintAt(screen, "**", int(e.Position.X-float64(scrollOffset)), int(e.Position.Y))
+			// ebitenutil.DebugPrintAt(screen, "**", int(e.Position.X-float64(scrollOffset) + 49), int(e.Position.Y))
+			// ebitenutil.DebugPrintAt(screen, "**", int(e.Position.X-float64(scrollOffset)), int(e.Position.Y + 29))
+			// ebitenutil.DebugPrintAt(screen, "**", int(e.Position.X-float64(scrollOffset) + 49), int(e.Position.Y + 29))
+		}
 }
 
 func removeEnemies() {
@@ -309,14 +339,14 @@ func removeEnemies() {
 
 func collide(a, b vector) bool {
 	playerSizeX := 50.0
-    playerSizeY := 68.0
-    enemySizeX := 49.0
-    enemySizeY := 29.0
+	playerSizeY := 68.0
+	targetSizeX := 49.0 //going with enemy dimension for all for now.. cuz im lazy
+	targetSizeY := 29.0
 
-    return !(a.X > b.X+enemySizeX ||
-            a.X+playerSizeX < b.X ||
-            a.Y > b.Y+enemySizeY ||
-            a.Y+playerSizeY < b.Y)
+	return !(a.X > b.X+targetSizeX ||
+		a.X+playerSizeX < b.X ||
+		a.Y > b.Y+targetSizeY ||
+		a.Y+playerSizeY < b.Y)
 }
 
 func main() {
@@ -332,6 +362,11 @@ func main() {
 	}
 
 	enemy, _, err = ebitenutil.NewImageFromFile("img/enemy.png", ebiten.FilterDefault)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	door, _, err = ebitenutil.NewImageFromFile("img/door.png", ebiten.FilterDefault)
 	if err != nil {
 		log.Fatal(err)
 	}
