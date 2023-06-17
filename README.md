@@ -5,4 +5,4 @@ A simple Go game made with Ebitengine <br>
 Engine used: https://github.com/hajimehoshi/ebiten <br>
 <hr>
 
-![Capture](https://github.com/GoEntity/GopherFlappy/assets/116807050/2a8afad8-a4c6-4193-a2e4-64fc03d7fab8)
+![image](https://github.com/GoEntity/GopherFlappy/assets/116807050/d5f3b500-2da3-4228-8d52-84af136cb0df)
