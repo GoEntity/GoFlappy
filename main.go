@@ -211,12 +211,12 @@ func playJumpSound() {
 
 func main() {
 	var err error
-	player, _, err = ebitenutil.NewImageFromFile("player.png", ebiten.FilterDefault)
+	player, _, err = ebitenutil.NewImageFromFile("img/player.png", ebiten.FilterDefault)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	background, _, err = ebitenutil.NewImageFromFile("background.png", ebiten.FilterDefault)
+	background, _, err = ebitenutil.NewImageFromFile("img/background.png", ebiten.FilterDefault)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -228,7 +228,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	jumpSoundFile, err := ebitenutil.OpenFile("jump.mp3")
+	jumpSoundFile, err := ebitenutil.OpenFile("sound/jump.mp3")
 	if err != nil {
 		log.Fatal(err)
 	}
