@@ -45,20 +45,20 @@ var (
 
 	continuousMovement = 0
 	gravity            = 0.5
-	jumpPower          = 7.5
+	jumpPower          = 5
 	playerSpeed        = 2.5
 	maxSpeed           = 5
 
 	jumpPlayer *audio.Player
 
 	enemies       []Enemy
-	enemyVelocity float64 = 5
+	enemyVelocity float64 = 5.0
 
 	firstLaunch bool = true
 	win         bool = false
 )
 
-var menuOptions = []string{"EASY", "NORMAL", "HELL"}
+var menuOptions = []string{"EASY", "NORMAL", "DIFFICULT"}
 
 type vector struct {
 	X, Y float64
@@ -73,6 +73,7 @@ type Game struct {
 type Enemy struct {
 	Position vector
 	Velocity float64
+	dirty  bool
 }
 
 func (g *Game) Update(screen *ebiten.Image) error {
@@ -126,7 +127,6 @@ func (g *Game) drawMenu(screen *ebiten.Image) {
 		if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
 			firstLaunch = true
 			g.drawMenu(screen)
-			// win = false
 		}
 	} else if win {
 		ebitenutil.DebugPrintAt(screen, "You are Legendary", screenWidth/2-50, screenHeight/2)
@@ -134,7 +134,6 @@ func (g *Game) drawMenu(screen *ebiten.Image) {
 		if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
 			firstLaunch = true
 			g.drawMenu(screen)
-			// win = false
 		}
 	}
 }
@@ -157,12 +156,13 @@ func (g *Game) updateMenu(screen *ebiten.Image) {
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
 		if firstLaunch {
+			enemyVelocity = 5.0
 			switch currentMenuOption {
 			case 0:
 				g.state = GameStatePlaying
 				firstLaunch = false
 			case 1:
-				enemyVelocity += 5
+				enemyVelocity += 2.5
 				g.state = GameStatePlaying
 				firstLaunch = false
 				// temp
@@ -171,7 +171,7 @@ func (g *Game) updateMenu(screen *ebiten.Image) {
 				// playerSpeed *= 2
 				// maxSpeed *= 2
 			case 2:
-				enemyVelocity += 10
+				enemyVelocity += 5.0
 				g.state = GameStatePlaying
 				firstLaunch = false
 				// temp
@@ -183,7 +183,6 @@ func (g *Game) updateMenu(screen *ebiten.Image) {
 			scrollOffset = 0
 		} else if enemies == nil {
 			g.state = GameStateMenu
-			// enemyVelocity = 1
 			firstLaunch = true
 		}
 	}
@@ -208,7 +207,7 @@ func (g *Game) updatePlaying() {
 	if rand.Intn(100) < 7 { //spawn percent chance
 		enemy := Enemy{
 			Position: vector{X: float64(backgroundWidth), Y: rand.Float64() * screenHeight},
-			Velocity: enemyVelocity + rand.Float64()*10,
+			Velocity: enemyVelocity + rand.Float64()*3,
 		}
 		enemies = append(enemies, enemy)
 	}
@@ -274,7 +273,7 @@ func (g *Game) movePlayer() {
     }
 
     forPlayerScreenPos = vector{X: playerScreenPos.X, Y: forPlayerPosition.Y}
-    if forPlayerScreenPos.Y < 0 || forPlayerScreenPos.Y > screenHeight {
+    if forPlayerScreenPos.Y < 0 || forPlayerScreenPos.Y > screenHeight-40 {
         playerVelocity.Y = -2*playerVelocity.Y
     } else {
         playerPosition.Y = forPlayerPosition.Y
@@ -307,9 +306,9 @@ func (g *Game) movePlayer() {
 		if playerVelocity.Y < 0 {
 			playerVelocity.Y = -2*playerVelocity.Y
 		}
-	} else if playerScreenPos.Y > screenHeight {
-		playerPosition.Y = screenHeight
-		playerScreenPos.Y = screenHeight
+	} else if playerScreenPos.Y > screenHeight - 40 {
+		playerPosition.Y = screenHeight - 40
+		playerScreenPos.Y = screenHeight - 40
 		if playerVelocity.Y > 0 {
 			playerVelocity.Y = -2*playerVelocity.Y
 		}
@@ -344,13 +343,23 @@ func drawEnemies(screen *ebiten.Image) {
 }
 
 func removeEnemies() {
-	for i := 0; i < len(enemies); i++ {
+	for i := range enemies {
 		enemies[i].Position.X -= enemies[i].Velocity
 		if enemies[i].Position.X < -20 {
-			enemies = append(enemies[:i], enemies[i+1:]...)
-			i--
+			enemies[i].dirty = true
 		}
 	}
+	enemies = enemyRecycler(enemies)
+}
+
+func enemyRecycler(enemies []Enemy) []Enemy {
+	filtered := enemies[:0]
+	for _, e := range enemies {
+		if !e.dirty {
+			filtered = append(filtered, e)
+		}
+	}
+	return filtered
 }
 
 func collide(a, b vector) bool {
