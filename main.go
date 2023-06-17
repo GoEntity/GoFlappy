@@ -5,7 +5,6 @@ package main
 import (
 	"image/color"
 	"log"
-	_ "time"
 
 	"github.com/hajimehoshi/ebiten"
 	"github.com/hajimehoshi/ebiten/audio"
