@@ -122,14 +122,14 @@ func (g *Game) updateMenu(screen *ebiten.Image) {
 			g.state = GameStatePlaying
 		case 1:
 			g.state = GameStatePlaying
-			// these variables to be replaced with enemy variables
+			// these variables to be replaced with enemy variables soon
 			// gravity *= 2
 			// jumpPower *= 2
 			// playerSpeed *= 2
 			// maxSpeed *= 2
 		case 2:
 			g.state = GameStatePlaying
-			// these variables to be replaced with enemy variables
+			// these variables to be replaced with enemy variables soon
 			// gravity *= 3
 			// jumpPower *= 3
 			// playerSpeed *= 3
