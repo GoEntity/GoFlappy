@@ -3,6 +3,10 @@
 <hr>
 A simple Go game made with Ebitengine <br>
 Engine used: https://github.com/hajimehoshi/ebiten <br>
+image credits <br>
+1. Golang Mascot `Gopher` <br>
+2. Rust Mascot `Ferris` <br>
+3. Background image `GoEntity` <br>
 <hr>
 
 ![image](https://github.com/GoEntity/GopherFlappy/assets/116807050/d5f3b500-2da3-4228-8d52-84af136cb0df)
