@@ -1,5 +1,3 @@
-//flappy not floppy
-
 package main
 
 import (
