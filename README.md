@@ -14,7 +14,7 @@ Engine used: https://github.com/hajimehoshi/ebiten v1.12.12
 1. Golang Mascot Image `Gopher - Go language Mascot` <br>
 2. Rust Mascot Image `Ferris - Rust language Mascot` <br>
 3. Background image `GoEntity` <br>
-4. Game Code `GoEntity`
+4. Game `GoEntity`
 
 <h2>GamePlay</h2>
 
