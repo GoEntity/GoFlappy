@@ -1,5 +1,0 @@
-package sound
-
-var(
-	//sound
-)

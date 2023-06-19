@@ -1,8 +1,6 @@
 package main
 
 import (
-	"bytes"
-	_ "bytes"
 	"image/color"
 	_ "io/ioutil"
 	"log"
@@ -16,10 +14,8 @@ import (
 	"github.com/hajimehoshi/ebiten/ebitenutil"
 	"github.com/hajimehoshi/ebiten/inpututil"
 	"github.com/hajimehoshi/ebiten/text"
-	"github.com/hajimehoshi/ebiten/v2/audio/vorbis"
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/opentype"
-	forSound "github.com/gonetity/GoFlappy/sound"
 )
 
 const (
@@ -486,8 +482,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// jumpSoundFile, err := ebitenutil.OpenFile("sound/jump.mp3")
-	jumSoundFile, err := vorbis.DecodeWithoutResampling(bytes.NewReader(forSound.jump.mp3))
+	jumpSoundFile, err := ebitenutil.OpenFile("sound/jump.mp3")
 	if err != nil {
 		log.Fatal(err)
 	}
