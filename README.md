@@ -7,7 +7,7 @@ Engine used: https://github.com/hajimehoshi/ebiten v1.12.12
 <h2>How to Play</h2>
 1. download the latest .zip folder from `Release` <br>
 2. unzip folder <br>
-3. go to folder and execute `GoFlappy.exe` <br>
+3. go to the folder and execute `GoFlappy.exe` <br>
 
 <h2>CopyRights</h2>
 0. Game Engine `Ebitengine Developers` <br>
