@@ -2,7 +2,9 @@ package main
 
 import (
 	"image/color"
+	_ "io/ioutil"
 	"log"
+	"os"
 
 	"math/rand"
 
@@ -10,7 +12,6 @@ import (
 	"github.com/hajimehoshi/ebiten/audio"
 	"github.com/hajimehoshi/ebiten/audio/mp3"
 	"github.com/hajimehoshi/ebiten/ebitenutil"
-	"github.com/hajimehoshi/ebiten/examples/resources/fonts"
 	"github.com/hajimehoshi/ebiten/inpututil"
 	"github.com/hajimehoshi/ebiten/text"
 	"golang.org/x/image/font"
@@ -30,6 +31,8 @@ const (
 
 	GameStateMenu GameState = iota
 	GameStatePlaying
+
+	DPI = 72
 )
 
 var (
@@ -66,33 +69,56 @@ var (
 )
 
 func init() {
-	tt, err := opentype.Parse(fonts.Pixellettersfull_ttf)
+	// tt, err := opentype.Parse(fonts.MPlus1pRegular_ttf)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// const dpi = 72
+	// titleFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
+	// 	Size:    100,
+	// 	DPI:     dpi,
+	// 	Hinting: font.HintingFull,
+	// })
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// miscFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
+	// 	Size:    40,
+	// 	DPI:     dpi,
+	// 	Hinting: font.HintingFull,
+	// })
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+
+	coolFont, err := os.ReadFile("fonts/Pixellettersfull.ttf")
 	if err != nil {
 		log.Fatal(err)
 	}
-	const dpi = 72
+
+	tt, err := opentype.Parse(coolFont)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	titleFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
-		Size:    200,
-		DPI:     dpi,
+		Size:    100,
+		DPI:     72,
 		Hinting: font.HintingFull,
 	})
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	miscFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
-		Size:    100,
-		DPI:     dpi,
+		Size:    40,
+		DPI:     72,
 		Hinting: font.HintingFull,
 	})
 	if err != nil {
 		log.Fatal(err)
 	}
 }
-
-// func forCustomFace(textSize float64) font.Face {
-// 	customFaceLocal := truetype.NewFace(customFont, &truetype.Options{Size: textSize})
-// 	return customFaceLocal
-// }
 
 var menuOptions = []string{"EASY", "NORMAL", "DIFFICULT"}
 
@@ -156,18 +182,14 @@ func (g *Game) drawMenu(screen *ebiten.Image) {
 			textY := screenHeight/2 + 50 + i*50
 			if i == currentMenuOption {
 				// ebitenutil.DebugPrintAt(screen, pick+" <=", textX, textY)
-				// text.Draw(screen, ">> "+pick, forCustomFace(60.0), textX, textY, color.White)
 				text.Draw(screen, ">> "+pick, miscFont, textX, textY, color.White)
 			} else {
-				// ebitenutil.DebugPrintAt(screen, pick, textX, textY)
-				// text.Draw(screen, pick, forCustomFace(60.0), textX, textY, color.White)
 				text.Draw(screen, pick, miscFont, textX, textY, color.White)
 			}
 		}
 	} else if !win && len(enemies) == 0 {
 		enemies = []Enemy{}
 		// ebitenutil.DebugPrintAt(screen, "Don't give up...", screenWidth/2-40, screenHeight/2-60)
-		// ebitenutil.DebugPrintAt(screen, "Press Enter", screenWidth/2-30, screenHeight/2+30)
 		txt := "YOU ARE DEAD"
 		txt2 := "Press Enter"
 		x := screenWidth/2 - text.BoundString(titleFont, txt).Max.X/2
