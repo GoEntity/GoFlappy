@@ -15,9 +15,6 @@ import (
 	"github.com/hajimehoshi/ebiten/text"
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/opentype"
-	forFont "github.com/goentity/fonts"
-	forImage "github.com/goentity/image"
-	forSound "github.com/goentity/sound"
 )
 
 const (
@@ -69,7 +66,7 @@ var (
 )
 
 func init() {
-	tt, err := opentype.Parse(fonts.Pixellettersfull-BnJ5_ttf)
+	tt, err := opentype.Parse(fonts.Pixellettersfull_ttf)
 	if err != nil {
 		log.Fatal(err)
 	}
