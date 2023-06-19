@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"image/color"
 	_ "io/ioutil"
 	"log"
@@ -14,8 +15,11 @@ import (
 	"github.com/hajimehoshi/ebiten/ebitenutil"
 	"github.com/hajimehoshi/ebiten/inpututil"
 	"github.com/hajimehoshi/ebiten/text"
+	"github.com/hajimehoshi/ebiten/v2/audio/vorbis"
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/opentype"
+	"github.com/goentity/GoFlappy"
+	forSound "github.com/goentity/GoFlappy/sound"
 )
 
 const (
@@ -477,12 +481,13 @@ func main() {
 
 	currentMenuOption = 0
 
-	audioContext, err := audio.NewContext(12800)
+	audioContext, err := audio.NewContext(48000)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	jumpSoundFile, err := ebitenutil.OpenFile("sound/jump.mp3")
+	// jumpSoundFile, err := ebitenutil.OpenFile("sound/jump.mp3")
+	jumSoundFile, err := vorbis.DecodeWithoutResampling(bytes.NewReader(forSound.jump.mp3))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -507,7 +512,6 @@ func main() {
 	ebiten.SetWindowSize(screenWidth, screenHeight)
 	ebiten.SetWindowResizable(true)
 	ebiten.SetMaxTPS(60)
-
 	if err := ebiten.RunGame(game); err != nil {
 		log.Fatal(err)
 	}
