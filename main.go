@@ -10,7 +10,14 @@ import (
 	"github.com/hajimehoshi/ebiten/audio"
 	"github.com/hajimehoshi/ebiten/audio/mp3"
 	"github.com/hajimehoshi/ebiten/ebitenutil"
+	"github.com/hajimehoshi/ebiten/examples/resources/fonts"
 	"github.com/hajimehoshi/ebiten/inpututil"
+	"github.com/hajimehoshi/ebiten/text"
+	"golang.org/x/image/font"
+	"golang.org/x/image/font/opentype"
+	forFont "github.com/goentity/fonts"
+	forImage "github.com/goentity/image"
+	forSound "github.com/goentity/sound"
 )
 
 const (
@@ -56,7 +63,39 @@ var (
 
 	firstLaunch bool = true
 	win         bool = false
+
+	titleFont font.Face
+	miscFont  font.Face
 )
+
+func init() {
+	tt, err := opentype.Parse(fonts.Pixellettersfull-BnJ5_ttf)
+	if err != nil {
+		log.Fatal(err)
+	}
+	const dpi = 72
+	titleFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
+		Size:    200,
+		DPI:     dpi,
+		Hinting: font.HintingFull,
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	miscFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
+		Size:    100,
+		DPI:     dpi,
+		Hinting: font.HintingFull,
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+// func forCustomFace(textSize float64) font.Face {
+// 	customFaceLocal := truetype.NewFace(customFont, &truetype.Options{Size: textSize})
+// 	return customFaceLocal
+// }
 
 var menuOptions = []string{"EASY", "NORMAL", "DIFFICULT"}
 
@@ -73,7 +112,7 @@ type Game struct {
 type Enemy struct {
 	Position vector
 	Velocity float64
-	dirty  bool
+	dirty    bool
 }
 
 func (g *Game) Update(screen *ebiten.Image) error {
@@ -108,29 +147,51 @@ func (g *Game) drawMenu(screen *ebiten.Image) {
 	ebitenutil.DrawRect(screen, 0, 0, screenWidth, screenHeight, color.RGBA{R: 0, G: 0, B: 80, A: 150})
 
 	if firstLaunch {
-		ebitenutil.DebugPrintAt(screen, "GoFlappy", screenWidth/2-40, screenHeight/2-80)
+		txt := "GoFlappy"
+		x := screenWidth/2 - text.BoundString(titleFont, txt).Max.X/2
+		y := screenHeight/2 - 80
+		text.Draw(screen, txt, titleFont, x, y, color.White)
 
+		// text.Draw(screen, txt, customFace, x, y, color.White)
+		// textSize = 30.0
 		for i, pick := range menuOptions {
-			textX := screenWidth/2 - len(pick)*6
-			textY := screenHeight/2 + (i * 50)
+			textX := screenWidth/2 - 100
+			textY := screenHeight/2 + 50 + i*50
 			if i == currentMenuOption {
-				ebitenutil.DebugPrintAt(screen, pick+" <=", textX, textY)
+				// ebitenutil.DebugPrintAt(screen, pick+" <=", textX, textY)
+				// text.Draw(screen, ">> "+pick, forCustomFace(60.0), textX, textY, color.White)
+				text.Draw(screen, ">> "+pick, miscFont, textX, textY, color.White)
 			} else {
-				ebitenutil.DebugPrintAt(screen, pick, textX, textY)
+				// ebitenutil.DebugPrintAt(screen, pick, textX, textY)
+				// text.Draw(screen, pick, forCustomFace(60.0), textX, textY, color.White)
+				text.Draw(screen, pick, miscFont, textX, textY, color.White)
 			}
 		}
 	} else if !win && len(enemies) == 0 {
 		enemies = []Enemy{}
-
-		ebitenutil.DebugPrintAt(screen, "Don't give up...", screenWidth/2-40, screenHeight/2-60)
-		ebitenutil.DebugPrintAt(screen, "Press Enter", screenWidth/2-30, screenHeight/2+30)
+		// ebitenutil.DebugPrintAt(screen, "Don't give up...", screenWidth/2-40, screenHeight/2-60)
+		// ebitenutil.DebugPrintAt(screen, "Press Enter", screenWidth/2-30, screenHeight/2+30)
+		txt := "YOU ARE DEAD"
+		txt2 := "Press Enter"
+		x := screenWidth/2 - text.BoundString(titleFont, txt).Max.X/2
+		y := screenHeight/2 - 60
+		x2 := screenWidth/2 - text.BoundString(miscFont, txt2).Max.X/2
+		y2 := screenHeight/2 + 30
+		text.Draw(screen, txt, titleFont, x, y, color.RGBA{R: 255, G: 0, B: 0, A: 255})
+		text.Draw(screen, txt2, miscFont, x2, y2, color.White)
 		if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
 			firstLaunch = true
 			g.drawMenu(screen)
 		}
 	} else if win {
-		ebitenutil.DebugPrintAt(screen, "You are Legendary", screenWidth/2-50, screenHeight/2)
-		ebitenutil.DebugPrintAt(screen, "Press Enter", screenWidth/2-30, screenHeight/2+30)
+		txt := "YOU ARE LEGENDARY"
+		txt2 := "Press Enter"
+		x := screenWidth/2 - text.BoundString(titleFont, txt).Max.X/2
+		y := screenHeight/2 - 60
+		x2 := screenWidth/2 - text.BoundString(miscFont, txt2).Max.X/2
+		y2 := screenHeight/2 + 30
+		text.Draw(screen, txt, titleFont, x, y, color.RGBA{R: 0, G: 255, B: 0, A: 255})
+		text.Draw(screen, txt2, miscFont, x2, y2, color.White)
 		if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
 			firstLaunch = true
 			g.drawMenu(screen)
@@ -215,7 +276,7 @@ func (g *Game) updatePlaying() {
 	for _, e := range enemies {
 		if collide(playerPosition, e.Position) {
 			// log.Println("check: collision - enemy")
-			
+
 			enemies = nil
 			g.state = GameStateMenu
 			win = false
@@ -264,21 +325,21 @@ func (g *Game) movePlayer() {
 
 	forPlayerPosition := vector{X: playerPosition.X + playerVelocity.X, Y: playerPosition.Y + playerVelocity.Y}
 
-    forPlayerScreenPos := vector{X: forPlayerPosition.X - float64(scrollOffset), Y: playerScreenPos.Y}
-    if forPlayerScreenPos.X < 0 || forPlayerScreenPos.X > screenWidth {
-        playerVelocity.X = -2*playerVelocity.X
-    } else {
-        playerPosition.X = forPlayerPosition.X
-        playerScreenPos.X = forPlayerScreenPos.X
-    }
+	forPlayerScreenPos := vector{X: forPlayerPosition.X - float64(scrollOffset), Y: playerScreenPos.Y}
+	if forPlayerScreenPos.X < 0 || forPlayerScreenPos.X > screenWidth {
+		playerVelocity.X = -2 * playerVelocity.X
+	} else {
+		playerPosition.X = forPlayerPosition.X
+		playerScreenPos.X = forPlayerScreenPos.X
+	}
 
-    forPlayerScreenPos = vector{X: playerScreenPos.X, Y: forPlayerPosition.Y}
-    if forPlayerScreenPos.Y < 0 || forPlayerScreenPos.Y > screenHeight-40 {
-        playerVelocity.Y = -2*playerVelocity.Y
-    } else {
-        playerPosition.Y = forPlayerPosition.Y
-        playerScreenPos.Y = forPlayerScreenPos.Y
-    }
+	forPlayerScreenPos = vector{X: playerScreenPos.X, Y: forPlayerPosition.Y}
+	if forPlayerScreenPos.Y < 0 || forPlayerScreenPos.Y > screenHeight-40 {
+		playerVelocity.Y = -2 * playerVelocity.Y
+	} else {
+		playerPosition.Y = forPlayerPosition.Y
+		playerScreenPos.Y = forPlayerScreenPos.Y
+	}
 
 	playerPosition.X += playerVelocity.X
 	playerPosition.Y += playerVelocity.Y
@@ -290,13 +351,13 @@ func (g *Game) movePlayer() {
 		playerPosition.X = 0
 		playerScreenPos.X = 0
 		if playerVelocity.X < 0 {
-			playerVelocity.X = -2*playerVelocity.X
+			playerVelocity.X = -2 * playerVelocity.X
 		}
 	} else if playerScreenPos.X > screenWidth {
 		playerPosition.X = screenWidth + float64(scrollOffset)
 		playerScreenPos.X = screenWidth
 		if playerVelocity.X > 0 {
-			playerVelocity.X = -2*playerVelocity.X
+			playerVelocity.X = -2 * playerVelocity.X
 		}
 	}
 
@@ -304,13 +365,13 @@ func (g *Game) movePlayer() {
 		playerPosition.Y = 0
 		playerScreenPos.Y = 0
 		if playerVelocity.Y < 0 {
-			playerVelocity.Y = -2*playerVelocity.Y
+			playerVelocity.Y = -2 * playerVelocity.Y
 		}
-	} else if playerScreenPos.Y > screenHeight - 40 {
+	} else if playerScreenPos.Y > screenHeight-40 {
 		playerPosition.Y = screenHeight - 40
 		playerScreenPos.Y = screenHeight - 40
 		if playerVelocity.Y > 0 {
-			playerVelocity.Y = -2*playerVelocity.Y
+			playerVelocity.Y = -2 * playerVelocity.Y
 		}
 	}
 
@@ -323,23 +384,22 @@ func (g *Game) movePlayer() {
 	}
 }
 
-
 func playJumpSound() {
 	jumpPlayer.Play()
 	jumpPlayer.Rewind()
 }
 
 func drawEnemies(screen *ebiten.Image) {
-		for _, e := range enemies {
-			op := &ebiten.DrawImageOptions{}
-			op.GeoM.Translate(e.Position.X-float64(scrollOffset), e.Position.Y)
-			screen.DrawImage(enemy, op)
+	for _, e := range enemies {
+		op := &ebiten.DrawImageOptions{}
+		op.GeoM.Translate(e.Position.X-float64(scrollOffset), e.Position.Y)
+		screen.DrawImage(enemy, op)
 
-			// ebitenutil.DebugPrintAt(screen, "**", int(e.Position.X-float64(scrollOffset)), int(e.Position.Y))
-			// ebitenutil.DebugPrintAt(screen, "**", int(e.Position.X-float64(scrollOffset) + 49), int(e.Position.Y))
-			// ebitenutil.DebugPrintAt(screen, "**", int(e.Position.X-float64(scrollOffset)), int(e.Position.Y + 29))
-			// ebitenutil.DebugPrintAt(screen, "**", int(e.Position.X-float64(scrollOffset) + 49), int(e.Position.Y + 29))
-		}
+		// ebitenutil.DebugPrintAt(screen, "**", int(e.Position.X-float64(scrollOffset)), int(e.Position.Y))
+		// ebitenutil.DebugPrintAt(screen, "**", int(e.Position.X-float64(scrollOffset) + 49), int(e.Position.Y))
+		// ebitenutil.DebugPrintAt(screen, "**", int(e.Position.X-float64(scrollOffset)), int(e.Position.Y + 29))
+		// ebitenutil.DebugPrintAt(screen, "**", int(e.Position.X-float64(scrollOffset) + 49), int(e.Position.Y + 29))
+	}
 }
 
 func removeEnemies() {
