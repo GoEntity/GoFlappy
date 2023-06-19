@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	_ "bytes"
 	"image/color"
 	_ "io/ioutil"
 	"log"
@@ -18,8 +19,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/audio/vorbis"
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/opentype"
-	"github.com/goentity/GoFlappy"
-	forSound "github.com/goentity/GoFlappy/sound"
+	forSound "github.com/gonetity/GoFlappy/sound"
 )
 
 const (

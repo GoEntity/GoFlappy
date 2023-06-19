@@ -1,0 +1,5 @@
+package sound
+
+var(
+	//sound
+)
