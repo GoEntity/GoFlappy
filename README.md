@@ -5,7 +5,7 @@ A simple Go game made with Ebitengine <br>
 Engine used: https://github.com/hajimehoshi/ebiten v1.12.12
 
 <h2>How to Play</h2>
-1. download the latest .zip folder from `Release` <br>
+1. download the latest .zip folder from `Releases` <br>
 2. unzip folder <br>
 3. go to the folder and execute `GoFlappy.exe` <br>
 
