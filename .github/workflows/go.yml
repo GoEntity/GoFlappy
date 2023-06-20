@@ -23,12 +23,6 @@ jobs:
     - name: Build
       run: go build -v -o ./output/GoFlappy .
 
-    - name: Build for MacOS
-      run: |
-        $env:GOOS = "darwin"
-        $env:GOARCH = "amd64"
-        go build -o ./output/GoFlappy-darwin-amd64 ./...
-
     - name: Build for Windows
       run: |
         $env:GOOS = "windows"
@@ -37,12 +31,6 @@ jobs:
 
     - name: Test
       run: go test -v ./...
-
-    - name: Upload artifact (MacOS)
-      uses: actions/upload-artifact@v2
-      with:
-        name: GoFlappy-darwin-amd64
-        path: ./output/GoFlappy-darwin-amd64
 
     - name: Upload artifact (Windows)
       uses: actions/upload-artifact@v2
