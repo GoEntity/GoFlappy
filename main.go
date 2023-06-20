@@ -13,6 +13,7 @@ import (
 	"github.com/hajimehoshi/ebiten/ebitenutil"
 	"github.com/hajimehoshi/ebiten/inpututil"
 	"github.com/hajimehoshi/ebiten/text"
+	
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/opentype"
 )
@@ -68,28 +69,6 @@ var (
 )
 
 func init() {
-	// tt, err := opentype.Parse(fonts.MPlus1pRegular_ttf)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// const dpi = 72
-	// titleFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
-	// 	Size:    100,
-	// 	DPI:     dpi,
-	// 	Hinting: font.HintingFull,
-	// })
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// miscFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
-	// 	Size:    40,
-	// 	DPI:     dpi,
-	// 	Hinting: font.HintingFull,
-	// })
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
 	coolFont, err := os.ReadFile("fonts/Pixellettersfull.ttf")
 	if err != nil {
 		log.Fatal(err)
@@ -400,6 +379,7 @@ func (g *Game) movePlayer() {
 	} else if scrollOffset > backgroundWidth-screenWidth {
 		scrollOffset = backgroundWidth - screenWidth
 	}
+
 }
 
 func playJumpSound() {
@@ -412,7 +392,7 @@ func drawEnemies(screen *ebiten.Image) {
 		op := &ebiten.DrawImageOptions{}
 		op.GeoM.Translate(e.Position.X-float64(scrollOffset), e.Position.Y)
 		screen.DrawImage(enemy, op)
-
+	
 		// ebitenutil.DebugPrintAt(screen, "**", int(e.Position.X-float64(scrollOffset)), int(e.Position.Y))
 		// ebitenutil.DebugPrintAt(screen, "**", int(e.Position.X-float64(scrollOffset) + 49), int(e.Position.Y))
 		// ebitenutil.DebugPrintAt(screen, "**", int(e.Position.X-float64(scrollOffset)), int(e.Position.Y + 29))
@@ -443,7 +423,7 @@ func enemyRecycler(enemies []Enemy) []Enemy {
 func collide(a, b vector) bool {
 	playerSizeX := 50.0
 	playerSizeY := 68.0
-	targetSizeX := 49.0 //going with enemy dimension for all for now.. cuz im lazy
+	targetSizeX := 49.0
 	targetSizeY := 29.0
 
 	return !(a.X > b.X+targetSizeX ||
