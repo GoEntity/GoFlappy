@@ -34,11 +34,17 @@ jobs:
     #     $env:GOARCH = "amd64"
     #     go build -o ./output/GoFlappy-windows-amd64.exe ./...
 
-    # - name: Test
-    #   run: go test -v ./...
+    - name: Test
+      run: go test -v ./...
+
+    # - name: Upload artifact (Windows)
+    #   uses: actions/upload-artifact@v2
+    #   with:
+    #     name: GoFlappy-windows-amd64
+    #     path: ./output/GoFlappy-windows-amd64.exe
 
     - name: Upload artifact (Windows)
       uses: actions/upload-artifact@v2
       with:
-        name: GoFlappy-windows-amd64
-        path: ./output/GoFlappy-windows-amd64.exe
+        name: GoFlappy-windows
+        path: ./output/
