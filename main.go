@@ -98,6 +98,51 @@ func init() {
 	}
 }
 
+func init(){
+	var err error
+	player, _, err = ebitenutil.NewImageFromFile("img/player.png", ebiten.FilterDefault)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	background, _, err = ebitenutil.NewImageFromFile("img/background.png", ebiten.FilterDefault)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	enemy, _, err = ebitenutil.NewImageFromFile("img/enemy.png", ebiten.FilterDefault)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	door, _, err = ebitenutil.NewImageFromFile("img/door.png", ebiten.FilterDefault)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	currentMenuOption = 0
+
+	audioContext, err := audio.NewContext(48000)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	jumpSoundFile, err := ebitenutil.OpenFile("sound/jump.mp3")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	jumpSound, err := mp3.Decode(audioContext, jumpSoundFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	jumpPlayer, err = audio.NewPlayer(audioContext, jumpSound)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
 var menuOptions = []string{"EASY", "NORMAL", "DIFFICULT"}
 
 type vector struct {
@@ -433,49 +478,6 @@ func collide(a, b vector) bool {
 }
 
 func main() {
-	var err error
-	player, _, err = ebitenutil.NewImageFromFile("img/player.png", ebiten.FilterDefault)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	background, _, err = ebitenutil.NewImageFromFile("img/background.png", ebiten.FilterDefault)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	enemy, _, err = ebitenutil.NewImageFromFile("img/enemy.png", ebiten.FilterDefault)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	door, _, err = ebitenutil.NewImageFromFile("img/door.png", ebiten.FilterDefault)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	currentMenuOption = 0
-
-	audioContext, err := audio.NewContext(48000)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	jumpSoundFile, err := ebitenutil.OpenFile("sound/jump.mp3")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	jumpSound, err := mp3.Decode(audioContext, jumpSoundFile)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	jumpPlayer, err = audio.NewPlayer(audioContext, jumpSound)
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	defer jumpPlayer.Close()
 
 	game := &Game{
