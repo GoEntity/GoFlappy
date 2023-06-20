@@ -23,12 +23,6 @@ jobs:
     - name: Build
       run: go build -v -o ./output/GoFlappy .
 
-    - name: Build for Linux
-      run: |
-        $env:GOOS = "linux"
-        $env:GOARCH = "amd64"
-        go build -o ./output/GoFlappy-linux-amd64 ./...
-
     - name: Build for MacOS
       run: |
         $env:GOOS = "darwin"
@@ -43,12 +37,6 @@ jobs:
 
     - name: Test
       run: go test -v ./...
-
-    - name: Upload artifact (Linux)
-      uses: actions/upload-artifact@v2
-      with:
-        name: GoFlappy-linux-amd64
-        path: ./output/GoFlappy-linux-amd64
 
     - name: Upload artifact (MacOS)
       uses: actions/upload-artifact@v2
