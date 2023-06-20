@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
     - uses: actions/checkout@v3
 
@@ -17,14 +17,41 @@ jobs:
       with:
         go-version: 1.20
 
-    - name: Build
-      run: go build -v -o ./output/goflappy ./...
+    - name: Build for Linux
+      run: |
+        $env:GOOS = "linux"
+        $env:GOARCH = "amd64"
+        go build -o ./output/goflappy-linux-amd64 ./...
+
+    - name: Build for MacOS
+      run: |
+        $env:GOOS = "darwin"
+        $env:GOARCH = "amd64"
+        go build -o ./output/goflappy-darwin-amd64 ./...
+
+    - name: Build for Windows
+      run: |
+        $env:GOOS = "windows"
+        $env:GOARCH = "amd64"
+        go build -o ./output/goflappy-windows-amd64.exe ./...
 
     - name: Test
       run: go test -v ./...
 
-    - name: Upload artifact
-      uses: actions/upload-artifact@v3
+    - name: Upload artifact (Linux)
+      uses: actions/upload-artifact@v2
       with:
-        name: goflappy
-        path: ./output/goflappy
+        name: goflappy-linux-amd64
+        path: ./output/goflappy-linux-amd64
+
+    - name: Upload artifact (MacOS)
+      uses: actions/upload-artifact@v2
+      with:
+        name: goflappy-darwin-amd64
+        path: ./output/goflappy-darwin-amd64
+
+    - name: Upload artifact (Windows)
+      uses: actions/upload-artifact@v2
+      with:
+        name: goflappy-windows-amd64
+        path: ./output/goflappy-windows-amd64.exe
