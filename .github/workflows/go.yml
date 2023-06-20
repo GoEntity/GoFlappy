@@ -26,7 +26,7 @@ jobs:
       run: go mod download
 
     - name: Build
-      run: go build -v -o ./output/GoFlappy .
+      run: go build -v -o ./output/GoFlappy.exe .
 
     # - name: Build for Windows
     #   run: |
@@ -46,5 +46,5 @@ jobs:
     - name: Upload artifact (Windows)
       uses: actions/upload-artifact@v2
       with:
-        name: GoFlappy(Windows).exe
+        name: GoFlappy(Windows)
         path: ./output/
