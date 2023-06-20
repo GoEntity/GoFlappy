@@ -69,7 +69,7 @@ var (
 )
 
 func init() {
-	coolFont, err := os.ReadFile("fonts/Pixellettersfull.ttf")
+	coolFont, err := os.ReadFile("assets/fonts/Pixellettersfull.ttf")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -100,22 +100,22 @@ func init() {
 
 func init(){
 	var err error
-	player, _, err = ebitenutil.NewImageFromFile("img/player.png", ebiten.FilterDefault)
+	player, _, err = ebitenutil.NewImageFromFile("assets/img/player.png", ebiten.FilterDefault)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	background, _, err = ebitenutil.NewImageFromFile("img/background.png", ebiten.FilterDefault)
+	background, _, err = ebitenutil.NewImageFromFile("assets/img/background.png", ebiten.FilterDefault)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	enemy, _, err = ebitenutil.NewImageFromFile("img/enemy.png", ebiten.FilterDefault)
+	enemy, _, err = ebitenutil.NewImageFromFile("assets/img/enemy.png", ebiten.FilterDefault)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	door, _, err = ebitenutil.NewImageFromFile("img/door.png", ebiten.FilterDefault)
+	door, _, err = ebitenutil.NewImageFromFile("assets/img/door.png", ebiten.FilterDefault)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -127,7 +127,7 @@ func init(){
 		log.Fatal(err)
 	}
 
-	jumpSoundFile, err := ebitenutil.OpenFile("sound/jump.mp3")
+	jumpSoundFile, err := ebitenutil.OpenFile("assets/sound/jump.mp3")
 	if err != nil {
 		log.Fatal(err)
 	}
