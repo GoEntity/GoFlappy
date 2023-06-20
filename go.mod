@@ -1,4 +1,4 @@
-module GoFlappy
+module github.com/GoEntity/GoFlappy
 
 go 1.20
 
