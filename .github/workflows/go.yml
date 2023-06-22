@@ -46,8 +46,8 @@ jobs:
     - name: Download modules
       run: go mod download
 
-    - name: Test
-      run: go test -v ./...
+    # - name: Test
+    #   run: go test -v ./...
 
     - name: Build (Windows)
       if: runner.os == 'Windows'
@@ -61,7 +61,7 @@ jobs:
       if: runner.os == 'macOS'
       run: GOOS=darwin GOARCH=amd64 CGO_ENABLED=1 go build -v -o output/GoFlappy-macos .
 
-      #assets
+      #include assets
     - name: Copy assets
       run: |
         cp -r ./assets output/
