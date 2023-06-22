@@ -64,5 +64,5 @@ jobs:
     - name: Upload Artifacts
       uses: actions/upload-artifact@v2
       with:
-        name: Game-${{ runner.os }}
+        name: GoFlappy-${{ runner.os }}
         path: output/*
