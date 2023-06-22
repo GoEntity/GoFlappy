@@ -5,6 +5,10 @@ A simple Go game made with Ebitengine <br>
 Engine used: https://github.com/hajimehoshi/ebiten v1.12.12
 
 <h2>How to Play</h2>
+0. download at https://goentity.github.io/auto_git_push_for_my_blog/ <br>
+<br>
+or <br>
+<br>
 1. go to `Actions` tab <br>
 2. click on the latest successful build <br>
 3. download artifact <br>
