@@ -10,12 +10,13 @@ A simple Go game made with Ebitengine <br>
 Engine used: https://github.com/hajimehoshi/ebiten v1.12.12
 
 <h2>Downloads</h2>
-0. download at https://goentity.github.io/auto_git_push_for_my_blog/ <br>
+---// Stable Downloads <br><br>
+1. download at https://goentity.github.io/auto_git_push_for_my_blog/ <br>
 or... <br>
 1. go to `Releases` <br>
 2. download GoFlappy-(...) that serves your OS <br>
-3. unzip and execute `GoFlappy.exe` or `GoFlappy` <br>
-or... <br>
+3. unzip and execute `GoFlappy.exe` or `GoFlappy` <br><br>
+---// Latest Downloads (might be unstable) <br><br>
 1. go to `Actions` tab <br>
 2. click on the latest successful build <br>
 3. download artifact that fits your OS <br>
