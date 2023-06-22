@@ -13,6 +13,7 @@ or <br>
 2. click on the latest successful build <br>
 3. download artifact that fits your OS <br>
 4. unzip and execute `GoFlappy.exe` or `GoFlappy` <br>
+<b>Note:</b> game file and `assets` folder need to be located in the same folder when you execute the game file
 
 <h2>CopyRights</h2>
 0. Game Engine `Ebitengine Developers` <br>
