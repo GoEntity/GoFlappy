@@ -17,8 +17,8 @@ or <br>
 
 <h2>CopyRights</h2>
 0. Game Engine `Ebitengine Developers` <br>
-1. Golang Mascot Image `Gopher - Go language Mascot` <br>
-2. Rust Mascot Image `Ferris - Rust language Mascot` <br>
+1. Golang Mascot Image `Gopher - Go Language Mascot` <br>
+2. Rust Mascot Image `Ferris - Rust Language Mascot` <br>
 3. Background Image `GoEntity` <br>
 4. Game `GoEntity`
 
