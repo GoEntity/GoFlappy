@@ -3,7 +3,7 @@
 https://github.com/GoEntity/GoFlappy/assets/116807050/ec9a6500-1083-489f-bebc-d4c07f8c8c9e
 
 <br>
-<b>Note:</b> Please let me know if game doesn't run on Linux or MacOS <br>
+<b>NOTE:</b> Please let me know if game doesn't run on Linux or MacOS <br>
 => go to `Issues` or `Discussions` tab and open a thread
 <h2>What is This</h2>
 A simple Go game made with Ebitengine <br>
@@ -20,7 +20,9 @@ or... <br>
 2. click on the latest successful build <br>
 3. download artifact that fits your OS <br>
 4. unzip and execute `GoFlappy.exe` or `GoFlappy` <br><br>
-<b>IMPORTANT:</b> game file and `assets` folder need to be located in the same folder when you execute the game file
+<b>IMPORTANT:</b> game file and `assets` folder need to be located in the same folder when you execute the game file <br>
+<b>NOTE: if Windows Defender ever says `virus detected`, that's just the nature of how WD works. I swear it is not a virus</b> <br><br>
+<b>In case your download is blocked by WD, click `details` or `more action` and you should be able to find option to bypass block</b>
 
 <h2>CopyRights</h2>
 0. Game Engine `Ebitengine Developers` <br>
