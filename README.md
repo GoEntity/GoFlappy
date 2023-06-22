@@ -21,7 +21,7 @@ or... <br>
 3. download artifact that fits your OS <br>
 4. unzip and execute `GoFlappy.exe` or `GoFlappy` <br><br>
 <b>IMPORTANT:</b> game file and `assets` folder need to be located in the same folder when you execute the game file <br>
-<b>NOTE: if Windows Defender ever says `virus detected`, that's just the nature of how WD works. I swear it is not a virus</b> <br><br>
+<b>NOTE: if Windows Defender ever says `virus detected`, that's just the nature of how WD works. I swear it is not a virus..... </b> <br><br>
 <b>In case your download is blocked by WD, click `details`, `more action` or `keep` and you should be able to find option to bypass block</b>
 
 <h2>CopyRights</h2>
