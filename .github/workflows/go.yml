@@ -26,6 +26,7 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y libasound2-dev libx11-dev libxrandr-dev libxcursor-dev libxinerama-dev libxi-dev
+        sudo apt-get install -y libgl1-mesa-dev xorg-dev
 
     - name: Install Dependencies (macOS)
       if: runner.os == 'macOS'
@@ -50,15 +51,15 @@ jobs:
 
     - name: Build (Windows)
       if: runner.os == 'Windows'
-      run: go build -v -o output/MyGame-windows.exe .
+      run: go build -v -o output/GoFlappy-windows.exe .
 
     - name: Build (Linux)
       if: runner.os == 'Linux'
-      run: GOOS=linux GOARCH=amd64 CGO_ENABLED=1 go build -v -o output/MyGame-linux .
+      run: GOOS=linux GOARCH=amd64 CGO_ENABLED=1 go build -v -o output/GoFlappy-linux .
 
     - name: Build (macOS)
       if: runner.os == 'macOS'
-      run: GOOS=darwin GOARCH=amd64 CGO_ENABLED=1 go build -v -o output/MyGame-macos .
+      run: GOOS=darwin GOARCH=amd64 CGO_ENABLED=1 go build -v -o output/GoFlappy-macos .
 
     - name: Upload Artifacts
       uses: actions/upload-artifact@v2
