@@ -21,13 +21,12 @@ import (
 const (
 	screenWidth  = 1280
 	screenHeight = 960
-
 	backgroundWidth = 1280 * 4
 	scrollSpeed     = 2
 
-	menuOption_normal = iota
-	menuOption_fast
-	menuOption_faster
+	menuOption_easy = iota
+	menuOption_normal
+	menuOption_difficult
 
 	GameStateMenu GameState = iota
 	GameStatePlaying
@@ -42,7 +41,7 @@ var (
 	door       *ebiten.Image
 
 	scrollOffset      = 0
-	currentMenuOption = menuOption_normal
+	currentMenuOption = menuOption_easy
 
 	playerPosition  = vector{X: 100, Y: 350}
 	playerVelocity  = vector{}
@@ -122,7 +121,7 @@ func init(){
 
 	currentMenuOption = 0
 
-	audioContext, err := audio.NewContext(48000)
+	audioContext, err := audio.NewContext(44100)
 	if err != nil {
 		log.Fatal(err)
 	}
