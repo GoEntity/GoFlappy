@@ -1,7 +1,7 @@
 # GoFlappy
 ![Untitled](https://github.com/GoEntity/GopherFloppy/assets/116807050/d6a9e5a9-a7dc-4c69-93d3-20127b26299f) <br>
 <b>Note:</b> Please let me know if game doesn't run on Linux or MacOS <br>
-=> go to `Issues` or `Discussions` tab and leave a thread
+=> go to `Issues` or `Discussions` tab and open a thread
 <h2>What is This</h2>
 A simple Go game made with Ebitengine <br>
 Engine used: https://github.com/hajimehoshi/ebiten v1.12.12
