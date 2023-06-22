@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
 
@@ -25,26 +25,35 @@ jobs:
     - name: Install Go modules
       run: go mod download
 
-    - name: Build
-      run: go build -v -o ./output/GoFlappy.exe .
-
-    # - name: Build for Windows
-    #   run: |
-    #     $env:GOOS = "windows"
-    #     $env:GOARCH = "amd64"
-    #     go build -o ./output/GoFlappy-windows-amd64.exe ./...
-
-    - name: Test
-      run: go test -v ./...
-
-    # - name: Upload artifact (Windows)
-    #   uses: actions/upload-artifact@v2
-    #   with:
-    #     name: GoFlappy-windows-amd64
-    #     path: ./output/GoFlappy-windows-amd64.exe
+    - name: Build for Windows
+      run: |
+        GOOS=windows go build -v -o ./output/GoFlappy-windows.exe .
 
     - name: Upload artifact (Windows)
       uses: actions/upload-artifact@v2
       with:
-        name: GoFlappy(Windows)
-        path: ./output/
+        name: GoFlappy-windows
+        path: ./output/GoFlappy-windows.exe
+
+    - name: Build for Linux
+      run: |
+        GOOS=linux go build -v -o ./output/GoFlappy-linux .
+
+    - name: Upload artifact (Linux)
+      uses: actions/upload-artifact@v2
+      with:
+        name: GoFlappy-linux
+        path: ./output/GoFlappy-linux
+
+    - name: Build for MacOS
+      run: |
+        GOOS=darwin go build -v -o ./output/GoFlappy-darwin .
+
+    - name: Upload artifact (MacOS)
+      uses: actions/upload-artifact@v2
+      with:
+        name: GoFlappy-darwin
+        path: ./output/GoFlappy-darwin
+
+    - name: Test
+      run: go test -v ./...
