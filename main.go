@@ -28,8 +28,10 @@ const (
 	menuOption_normal
 	menuOption_difficult
 
-	GameStateMenu GameState = iota
+	GameStateMenu = iota
 	GameStatePlaying
+	GameStateWin
+	GameStateLose
 
 	DPI = 72
 
@@ -63,11 +65,11 @@ var (
 	continuousMovement = 0
 
 	jumpPlayer *audio.Player
+	menuPlayer *audio.Player
 
 	enemies       []Enemy
 	enemyVelocity float64 = 5.0
 
-	notPlaying bool = true
 	win        bool = false
 
 	titleFont font.Face
@@ -154,6 +156,18 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	menuSoundFile, err := ebitenutil.OpenFile("assets/sound/menu.mp3")
+	if err != nil {
+		log.Fatal(err)
+	}
+	menuSound, err := mp3.Decode(audioContext, menuSoundFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+	menuPlayer, err = audio.NewPlayer(audioContext, menuSound)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
@@ -164,9 +178,17 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	switch g.state {
 	case GameStateMenu:
 		g.drawMenu(screen)
+		log.Println("game menu")
 	case GameStatePlaying:
 		g.drawPlaying(screen)
 		drawEnemies(screen)
+		log.Println("game playing")
+	case GameStateWin:
+		g.drawMenu(screen)
+		log.Println("You win")
+	case GameStateLose:
+		g.drawMenu(screen)
+		log.Println("You lose")
 	}
 }
 
@@ -177,6 +199,10 @@ func (g *Game) Update(screen *ebiten.Image) error {
 	case GameStatePlaying:
 		g.updatePlaying()
 		removeEnemies()
+	case GameStateWin:
+		g.updateMenu(screen)
+	case GameStateLose:
+		g.updateMenu(screen)
 	}
 	g.Draw(screen)
 
@@ -186,7 +212,7 @@ func (g *Game) Update(screen *ebiten.Image) error {
 func (g *Game) drawMenu(screen *ebiten.Image) {
 	ebitenutil.DrawRect(screen, 0, 0, screenWidth, screenHeight, color.RGBA{R: 0, G: 0, B: 80, A: 150})
 
-	if notPlaying {
+	if g.state == GameStateMenu {
 		txt := "GoFlappy"
 		x := screenWidth/2 - text.BoundString(titleFont, txt).Max.X/2
 		y := screenHeight/2 - 80
@@ -213,8 +239,8 @@ func (g *Game) drawMenu(screen *ebiten.Image) {
 		text.Draw(screen, txt, titleFont, x, y, color.RGBA{R: 255, G: 0, B: 0, A: 255})
 		text.Draw(screen, txt2, miscFont, x2, y2, color.White)
 		if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
-			notPlaying = true
 			g.drawMenu(screen)
+			g.state = GameStateMenu
 		}
 	} else if win {
 		txt := "YOU ARE LEGENDARY"
@@ -226,14 +252,13 @@ func (g *Game) drawMenu(screen *ebiten.Image) {
 		text.Draw(screen, txt, titleFont, x, y, color.RGBA{R: 0, G: 255, B: 0, A: 255})
 		text.Draw(screen, txt2, miscFont, x2, y2, color.White)
 		if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
-			notPlaying = true
 			g.drawMenu(screen)
+			g.state = GameStateMenu
 		}
 	}
 }
 
 func (g *Game) updateMenu(screen *ebiten.Image) {
-
 	if inpututil.IsKeyJustPressed(ebiten.KeyDown) {
 		currentMenuOption++
 		if currentMenuOption >= len(menuOptions) {
@@ -247,7 +272,7 @@ func (g *Game) updateMenu(screen *ebiten.Image) {
 		}
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
-		if notPlaying {
+		if g.state == GameStateMenu {
 			enemyVelocity = 5.0
 			switch currentMenuOption {
 			case 0:
@@ -257,11 +282,9 @@ func (g *Game) updateMenu(screen *ebiten.Image) {
 				enemyVelocity += 5.0
 			}
 			scrollOffset = 0
-			notPlaying = false
 			g.state = GameStatePlaying
-		} else if enemies == nil {
+		} else if g.state == GameStateWin || g.state == GameStateLose {
 			g.state = GameStateMenu
-			notPlaying = true
 		}
 	}
 }
@@ -295,7 +318,7 @@ func (g *Game) updatePlaying() {
 			//log.Println("check: collision - enemy")
 
 			enemies = nil
-			g.state = GameStateMenu
+			g.state = GameStateLose
 			win = false
 
 			playerPosition = playerOrigin
@@ -308,7 +331,7 @@ func (g *Game) updatePlaying() {
 		//log.Println("check: collision - door")
 
 		enemies = nil
-		g.state = GameStateMenu
+		g.state = GameStateWin
 		win = true
 
 		playerPosition = playerOrigin
@@ -403,6 +426,11 @@ func (g *Game) movePlayer() {
 func playJumpSound() {
 	jumpPlayer.Play()
 	jumpPlayer.Rewind()
+}
+
+func playMenuSound() {
+	menuPlayer.Play()
+	menuPlayer.Rewind()
 }
 
 func drawEnemies(screen *ebiten.Image) {
