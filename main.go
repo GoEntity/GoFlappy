@@ -40,10 +40,12 @@ const (
 	enemySizeX  = 49.0
 	enemySizeY  = 29.0
 
-	gravity     = 0.5
-	jumpPower   = 5
-	playerSpeed = 2.5
-	maxSpeed    = 5
+	PlayerGravity   = 0.5
+	PlayerJumpPower = 5
+	PlayerSpeed     = 2.5
+	PlayerMaxSpeed  = 5
+
+	EnemySpeed float64 = 5.0
 )
 
 var (
@@ -60,15 +62,24 @@ var (
 	playerVelocity  = vector{}
 	playerScreenPos = vector{}
 
+	gravity   = PlayerGravity
+	jumpPower = PlayerJumpPower
+	speed     = PlayerSpeed
+	maxSpeed  = PlayerMaxSpeed
+
 	doorPosition = vector{X: backgroundWidth - 300, Y: screenHeight / 2}
 
 	continuousMovement = 0
 
 	jumpPlayer *audio.Player
 	menuPlayer *audio.Player
+	gamePlayer *audio.Player
+	winPlayer  *audio.Player
+	losePlayer *audio.Player
+	hellPlayer *audio.Player
 
-	enemies       []Enemy
-	enemyVelocity float64 = 5.0
+	enemies    []Enemy
+	enemySpeed = EnemySpeed
 
 	titleFont font.Face
 	miscFont  font.Face
@@ -154,7 +165,7 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	menuSoundFile, err := ebitenutil.OpenFile("assets/sound/menu.mp3")
+	menuSoundFile, err := ebitenutil.OpenFile("assets/sound/menuBGM.mp3")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -163,6 +174,54 @@ func init() {
 		log.Fatal(err)
 	}
 	menuPlayer, err = audio.NewPlayer(audioContext, menuSound)
+	if err != nil {
+		log.Fatal(err)
+	}
+	gameSoundFile, err := ebitenutil.OpenFile("assets/sound/gameBGM_long.mp3")
+	if err != nil {
+		log.Fatal(err)
+	}
+	gameSound, err := mp3.Decode(audioContext, gameSoundFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+	gamePlayer, err = audio.NewPlayer(audioContext, gameSound)
+	if err != nil {
+		log.Fatal(err)
+	}
+	loseSoundFile, err := ebitenutil.OpenFile("assets/sound/loseBGM.mp3")
+	if err != nil {
+		log.Fatal(err)
+	}
+	loseSound, err := mp3.Decode(audioContext, loseSoundFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+	losePlayer, err = audio.NewPlayer(audioContext, loseSound)
+	if err != nil {
+		log.Fatal(err)
+	}
+	winSoundFile, err := ebitenutil.OpenFile("assets/sound/winBGM.mp3")
+	if err != nil {
+		log.Fatal(err)
+	}
+	winSound, err := mp3.Decode(audioContext, winSoundFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+	winPlayer, err = audio.NewPlayer(audioContext, winSound)
+	if err != nil {
+		log.Fatal(err)
+	}
+	hellSoundFile, err := ebitenutil.OpenFile("assets/sound/gameBGM_hell.mp3")
+	if err != nil {
+		log.Fatal(err)
+	}
+	hellSound, err := mp3.Decode(audioContext, hellSoundFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+	hellPlayer, err = audio.NewPlayer(audioContext, hellSound)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -190,15 +249,34 @@ func (g *Game) Update(screen *ebiten.Image) error {
 	switch g.state {
 	case GameStateMenu:
 		menuPlayer.Play()
+		winPlayer.Pause()
+		winPlayer.Seek(0)
+		losePlayer.Pause()
+		losePlayer.Seek(0)
 		g.updateMenu(screen)
 	case GameStatePlaying:
+		if currentMenuOption == 2 {
+			hellPlayer.Play()
+		} else {
+			gamePlayer.Play()
+		}
 		menuPlayer.Pause()
 		menuPlayer.Seek(0)
 		g.updatePlaying()
 		removeEnemies()
 	case GameStateWin:
+		gamePlayer.Pause()
+		gamePlayer.Seek(0)
+		hellPlayer.Pause()
+		hellPlayer.Seek(0)
+		winPlayer.Play()
 		g.updateMenu(screen)
 	case GameStateLose:
+		gamePlayer.Pause()
+		gamePlayer.Seek(0)
+		hellPlayer.Pause()
+		hellPlayer.Seek(0)
+		losePlayer.Play()
 		g.updateMenu(screen)
 	}
 	return nil
@@ -266,13 +344,16 @@ func (g *Game) updateMenu(screen *ebiten.Image) {
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
 		if g.state == GameStateMenu {
-			enemyVelocity = 5.0
+			enemySpeed = EnemySpeed
+			speed = PlayerSpeed
 			switch currentMenuOption {
 			case 0:
+				enemySpeed += 2.5
 			case 1:
-				enemyVelocity += 2.5
+				enemySpeed += 5.0
 			case 2:
-				enemyVelocity += 5.0
+				enemySpeed += 15.0
+				speed += 3.0
 			}
 			scrollOffset = 0
 			g.state = GameStatePlaying
@@ -301,7 +382,7 @@ func (g *Game) updatePlaying() {
 	if rand.Intn(100) < 7 { //spawn percent chance
 		enemy := Enemy{
 			Position: vector{X: float64(backgroundWidth), Y: rand.Float64() * screenHeight},
-			Velocity: enemyVelocity + rand.Float64()*3,
+			Velocity: enemySpeed + rand.Float64()*3,
 		}
 		enemies = append(enemies, enemy)
 	}
@@ -348,7 +429,7 @@ func (g *Game) movePlayer() {
 		playerVelocity.Y = float64(maxSpeed)
 	}
 
-	playerVelocity.X = float64(continuousMovement) * float64(playerSpeed)
+	playerVelocity.X = float64(continuousMovement) * float64(speed)
 
 	forPlayerPosition := vector{
 		X: playerPosition.X + playerVelocity.X,
@@ -458,6 +539,10 @@ func collide(a, b vector) bool {
 func main() {
 	defer jumpPlayer.Close()
 	defer menuPlayer.Close()
+	defer winPlayer.Close()
+	defer losePlayer.Close()
+	defer hellPlayer.Close()
+	defer gamePlayer.Close()
 
 	currentMenuOption = 0 //menu option init
 
