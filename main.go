@@ -35,8 +35,8 @@ const (
 
 	playerSizeX = 50.0
 	playerSizeY = 68.0
-	targetSizeX = 49.0
-	targetSizeY = 29.0
+	enemySizeX = 49.0
+	enemySizeY = 29.0
 )
 
 var (
@@ -439,9 +439,9 @@ func enemyRecycler(enemies []Enemy) []Enemy {
 }
 
 func collide(a, b vector) bool {
-	return !(a.X > b.X+targetSizeX ||
+	return !(a.X > b.X+enemySizeX ||
 		a.X+playerSizeX < b.X ||
-		a.Y > b.Y+targetSizeY ||
+		a.Y > b.Y+enemySizeY ||
 		a.Y+playerSizeY < b.Y)
 }
 
