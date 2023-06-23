@@ -13,14 +13,14 @@ import (
 	"github.com/hajimehoshi/ebiten/ebitenutil"
 	"github.com/hajimehoshi/ebiten/inpututil"
 	"github.com/hajimehoshi/ebiten/text"
-	
+
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/opentype"
 )
 
 const (
-	screenWidth  = 1280
-	screenHeight = 960
+	screenWidth     = 1280
+	screenHeight    = 960
 	backgroundWidth = 1280 * 4
 	scrollSpeed     = 2
 
@@ -35,13 +35,13 @@ const (
 
 	playerSizeX = 50.0
 	playerSizeY = 68.0
-	enemySizeX = 49.0
-	enemySizeY = 29.0
+	enemySizeX  = 49.0
+	enemySizeY  = 29.0
 
-	gravity            = 0.5
-	jumpPower          = 5
-	playerSpeed        = 2.5
-	maxSpeed           = 5
+	gravity     = 0.5
+	jumpPower   = 5
+	playerSpeed = 2.5
+	maxSpeed    = 5
 )
 
 var (
@@ -53,7 +53,7 @@ var (
 	scrollOffset      = 0
 	currentMenuOption = menuOption_easy
 
-	playerOrigin = vector{X: 100, Y: 350}
+	playerOrigin    = vector{X: 100, Y: 350}
 	playerPosition  = playerOrigin
 	playerVelocity  = vector{}
 	playerScreenPos = vector{}
@@ -61,14 +61,14 @@ var (
 	doorPosition = vector{X: backgroundWidth - 300, Y: screenHeight / 2}
 
 	continuousMovement = 0
-	
+
 	jumpPlayer *audio.Player
 
 	enemies       []Enemy
 	enemyVelocity float64 = 5.0
 
-	firstLaunch bool = true
-	win         bool = false
+	notPlaying bool = true
+	win        bool = false
 
 	titleFont font.Face
 	miscFont  font.Face
@@ -186,7 +186,7 @@ func (g *Game) Update(screen *ebiten.Image) error {
 func (g *Game) drawMenu(screen *ebiten.Image) {
 	ebitenutil.DrawRect(screen, 0, 0, screenWidth, screenHeight, color.RGBA{R: 0, G: 0, B: 80, A: 150})
 
-	if firstLaunch {
+	if notPlaying {
 		txt := "GoFlappy"
 		x := screenWidth/2 - text.BoundString(titleFont, txt).Max.X/2
 		y := screenHeight/2 - 80
@@ -213,7 +213,7 @@ func (g *Game) drawMenu(screen *ebiten.Image) {
 		text.Draw(screen, txt, titleFont, x, y, color.RGBA{R: 255, G: 0, B: 0, A: 255})
 		text.Draw(screen, txt2, miscFont, x2, y2, color.White)
 		if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
-			firstLaunch = true
+			notPlaying = true
 			g.drawMenu(screen)
 		}
 	} else if win {
@@ -226,7 +226,7 @@ func (g *Game) drawMenu(screen *ebiten.Image) {
 		text.Draw(screen, txt, titleFont, x, y, color.RGBA{R: 0, G: 255, B: 0, A: 255})
 		text.Draw(screen, txt2, miscFont, x2, y2, color.White)
 		if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
-			firstLaunch = true
+			notPlaying = true
 			g.drawMenu(screen)
 		}
 	}
@@ -247,7 +247,7 @@ func (g *Game) updateMenu(screen *ebiten.Image) {
 		}
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
-		if firstLaunch {
+		if notPlaying {
 			enemyVelocity = 5.0
 			switch currentMenuOption {
 			case 0:
@@ -257,11 +257,11 @@ func (g *Game) updateMenu(screen *ebiten.Image) {
 				enemyVelocity += 5.0
 			}
 			scrollOffset = 0
-			firstLaunch = false
+			notPlaying = false
 			g.state = GameStatePlaying
 		} else if enemies == nil {
 			g.state = GameStateMenu
-			firstLaunch = true
+			notPlaying = true
 		}
 	}
 }
@@ -410,7 +410,7 @@ func drawEnemies(screen *ebiten.Image) {
 		op := &ebiten.DrawImageOptions{}
 		op.GeoM.Translate(e.Position.X-float64(scrollOffset), e.Position.Y)
 		screen.DrawImage(enemy, op)
-	
+
 		// ebitenutil.DebugPrintAt(screen, "**", int(e.Position.X-float64(scrollOffset)), int(e.Position.Y))
 		// ebitenutil.DebugPrintAt(screen, "**", int(e.Position.X-float64(scrollOffset) + 49), int(e.Position.Y))
 		// ebitenutil.DebugPrintAt(screen, "**", int(e.Position.X-float64(scrollOffset)), int(e.Position.Y + 29))
