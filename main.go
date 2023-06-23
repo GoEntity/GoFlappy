@@ -292,7 +292,7 @@ func (g *Game) updatePlaying() {
 
 	for _, e := range enemies {
 		if collide(playerPosition, e.Position) {
-			// log.Println("check: collision - enemy")
+			//log.Println("check: collision - enemy")
 
 			enemies = nil
 			g.state = GameStateMenu
@@ -305,7 +305,7 @@ func (g *Game) updatePlaying() {
 	}
 
 	if collide(playerPosition, doorPosition) {
-		// log.Println("check: collision - door")
+		//log.Println("check: collision - door")
 
 		enemies = nil
 		g.state = GameStateMenu
@@ -447,7 +447,7 @@ func collide(a, b vector) bool {
 
 func main() {
 	defer jumpPlayer.Close()
-	currentMenuOption = 0
+	currentMenuOption = 0 //menu option init
 
 	game := &Game{
 		state: GameStateMenu,
