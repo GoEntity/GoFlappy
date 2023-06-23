@@ -70,8 +70,6 @@ var (
 	enemies       []Enemy
 	enemyVelocity float64 = 5.0
 
-	win        bool = false
-
 	titleFont font.Face
 	miscFont  font.Face
 
@@ -177,6 +175,7 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 func (g *Game) Draw(screen *ebiten.Image) {
 	switch g.state {
 	case GameStateMenu:
+		playMenuSound()
 		g.drawMenu(screen)
 		log.Println("game menu")
 	case GameStatePlaying:
@@ -204,8 +203,6 @@ func (g *Game) Update(screen *ebiten.Image) error {
 	case GameStateLose:
 		g.updateMenu(screen)
 	}
-	g.Draw(screen)
-
 	return nil
 }
 
@@ -227,7 +224,7 @@ func (g *Game) drawMenu(screen *ebiten.Image) {
 				text.Draw(screen, pick, miscFont, textX, textY, color.White)
 			}
 		}
-	} else if !win && len(enemies) == 0 {
+	} else if g.state == GameStateLose && len(enemies) == 0 {
 		enemies = []Enemy{}
 
 		txt := "YOU ARE DEAD"
@@ -239,10 +236,9 @@ func (g *Game) drawMenu(screen *ebiten.Image) {
 		text.Draw(screen, txt, titleFont, x, y, color.RGBA{R: 255, G: 0, B: 0, A: 255})
 		text.Draw(screen, txt2, miscFont, x2, y2, color.White)
 		if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
-			g.drawMenu(screen)
 			g.state = GameStateMenu
 		}
-	} else if win {
+	} else if g.state == GameStateWin && len(enemies) == 0 {
 		txt := "YOU ARE LEGENDARY"
 		txt2 := "Press Enter"
 		x := screenWidth/2 - text.BoundString(titleFont, txt).Max.X/2
@@ -252,7 +248,6 @@ func (g *Game) drawMenu(screen *ebiten.Image) {
 		text.Draw(screen, txt, titleFont, x, y, color.RGBA{R: 0, G: 255, B: 0, A: 255})
 		text.Draw(screen, txt2, miscFont, x2, y2, color.White)
 		if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
-			g.drawMenu(screen)
 			g.state = GameStateMenu
 		}
 	}
@@ -319,8 +314,6 @@ func (g *Game) updatePlaying() {
 
 			enemies = nil
 			g.state = GameStateLose
-			win = false
-
 			playerPosition = playerOrigin
 
 			break
@@ -332,8 +325,6 @@ func (g *Game) updatePlaying() {
 
 		enemies = nil
 		g.state = GameStateWin
-		win = true
-
 		playerPosition = playerOrigin
 
 		return
