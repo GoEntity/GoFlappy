@@ -176,19 +176,13 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	switch g.state {
 	case GameStateMenu:
 		g.drawMenu(screen)
-		
-		log.Println("game menu")
 	case GameStatePlaying:
-		
 		g.drawPlaying(screen)
 		drawEnemies(screen)
-		log.Println("game playing")
 	case GameStateWin:
 		g.drawMenu(screen)
-		log.Println("You win")
 	case GameStateLose:
 		g.drawMenu(screen)
-		log.Println("You lose")
 	}
 }
 
@@ -315,7 +309,6 @@ func (g *Game) updatePlaying() {
 	for _, e := range enemies {
 		if collide(playerPosition, e.Position) {
 			//log.Println("check: collision - enemy")
-
 			enemies = nil
 			g.state = GameStateLose
 			playerPosition = playerOrigin
@@ -326,7 +319,6 @@ func (g *Game) updatePlaying() {
 
 	if collide(playerPosition, doorPosition) {
 		//log.Println("check: collision - door")
-
 		enemies = nil
 		g.state = GameStateWin
 		playerPosition = playerOrigin
