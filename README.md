@@ -1,6 +1,6 @@
 # GoFlappy
 
-https://github.com/GoEntity/GoFlappy/assets/116807050/ec9a6500-1083-489f-bebc-d4c07f8c8c9e
+https://github.com/GoEntity/GoFlappy/assets/116807050/d74d6c69-793b-46ff-8e16-80f276f71811
 
 <br>
 <b>NOTE:</b> Please let me know if game doesn't run on Linux or MacOS <br>
