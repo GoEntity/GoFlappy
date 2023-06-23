@@ -175,10 +175,11 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 func (g *Game) Draw(screen *ebiten.Image) {
 	switch g.state {
 	case GameStateMenu:
-		playMenuSound()
 		g.drawMenu(screen)
+		
 		log.Println("game menu")
 	case GameStatePlaying:
+		
 		g.drawPlaying(screen)
 		drawEnemies(screen)
 		log.Println("game playing")
@@ -194,8 +195,11 @@ func (g *Game) Draw(screen *ebiten.Image) {
 func (g *Game) Update(screen *ebiten.Image) error {
 	switch g.state {
 	case GameStateMenu:
+		menuPlayer.Play()
 		g.updateMenu(screen)
 	case GameStatePlaying:
+		menuPlayer.Pause()
+		menuPlayer.Seek(0)
 		g.updatePlaying()
 		removeEnemies()
 	case GameStateWin:
@@ -419,11 +423,6 @@ func playJumpSound() {
 	jumpPlayer.Rewind()
 }
 
-func playMenuSound() {
-	menuPlayer.Play()
-	menuPlayer.Rewind()
-}
-
 func drawEnemies(screen *ebiten.Image) {
 	for _, e := range enemies {
 		op := &ebiten.DrawImageOptions{}
@@ -466,6 +465,8 @@ func collide(a, b vector) bool {
 
 func main() {
 	defer jumpPlayer.Close()
+	defer menuPlayer.Close()
+
 	currentMenuOption = 0 //menu option init
 
 	game := &Game{
