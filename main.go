@@ -352,8 +352,8 @@ func (g *Game) updateMenu(screen *ebiten.Image) {
 			case 1:
 				enemySpeed += 5.0
 			case 2:
-				enemySpeed += 15.0
-				speed += 3.0
+				enemySpeed += 11.0
+				speed += 1.0
 			}
 			scrollOffset = 0
 			g.state = GameStatePlaying
