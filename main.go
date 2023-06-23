@@ -42,7 +42,6 @@ const (
 	jumpPower          = 5
 	playerSpeed        = 2.5
 	maxSpeed           = 5
-
 )
 
 var (
@@ -94,7 +93,7 @@ type Enemy struct {
 }
 
 func init() {
-	//fonts
+	//font
 	coolFont, err := os.ReadFile("assets/fonts/Pixellettersfull.ttf")
 	if err != nil {
 		log.Fatal(err)
