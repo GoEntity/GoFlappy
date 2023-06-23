@@ -1,5 +1,7 @@
 # GoFlappy
 
+&#8595;&#8595; please enable volume &#8595;&#8595;
+
 https://github.com/GoEntity/GoFlappy/assets/116807050/d74d6c69-793b-46ff-8e16-80f276f71811
 
 <br>
