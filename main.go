@@ -32,6 +32,11 @@ const (
 	GameStatePlaying
 
 	DPI = 72
+
+	playerSizeX = 50.0
+	playerSizeY = 68.0
+	targetSizeX = 49.0
+	targetSizeY = 29.0
 )
 
 var (
@@ -65,84 +70,9 @@ var (
 
 	titleFont font.Face
 	miscFont  font.Face
+
+	menuOptions = []string{"EASY", "NORMAL", "DIFFICULT"}
 )
-
-func init() {
-	coolFont, err := os.ReadFile("assets/fonts/Pixellettersfull.ttf")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	tt, err := opentype.Parse(coolFont)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	titleFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
-		Size:    100,
-		DPI:     72,
-		Hinting: font.HintingFull,
-	})
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	miscFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
-		Size:    40,
-		DPI:     72,
-		Hinting: font.HintingFull,
-	})
-	if err != nil {
-		log.Fatal(err)
-	}
-}
-
-func init(){
-	var err error
-	player, _, err = ebitenutil.NewImageFromFile("assets/img/player.png", ebiten.FilterDefault)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	background, _, err = ebitenutil.NewImageFromFile("assets/img/background.png", ebiten.FilterDefault)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	enemy, _, err = ebitenutil.NewImageFromFile("assets/img/enemy.png", ebiten.FilterDefault)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	door, _, err = ebitenutil.NewImageFromFile("assets/img/door.png", ebiten.FilterDefault)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	currentMenuOption = 0
-
-	audioContext, err := audio.NewContext(44100)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	jumpSoundFile, err := ebitenutil.OpenFile("assets/sound/jump.mp3")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	jumpSound, err := mp3.Decode(audioContext, jumpSoundFile)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	jumpPlayer, err = audio.NewPlayer(audioContext, jumpSound)
-	if err != nil {
-		log.Fatal(err)
-	}
-}
-
-var menuOptions = []string{"EASY", "NORMAL", "DIFFICULT"}
 
 type vector struct {
 	X, Y float64
@@ -160,18 +90,68 @@ type Enemy struct {
 	dirty    bool
 }
 
-func (g *Game) Update(screen *ebiten.Image) error {
-	switch g.state {
-	case GameStateMenu:
-		g.updateMenu(screen)
-	case GameStatePlaying:
-		g.updatePlaying()
-		removeEnemies()
+func init() {
+	//fonts
+	coolFont, err := os.ReadFile("assets/fonts/Pixellettersfull.ttf")
+	if err != nil {
+		log.Fatal(err)
+	}
+	tt, err := opentype.Parse(coolFont)
+	if err != nil {
+		log.Fatal(err)
+	}
+	titleFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
+		Size:    100,
+		DPI:     72,
+		Hinting: font.HintingFull,
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	miscFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
+		Size:    40,
+		DPI:     72,
+		Hinting: font.HintingFull,
+	})
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	g.Draw(screen)
+	//img
+	player, _, err = ebitenutil.NewImageFromFile("assets/img/player.png", ebiten.FilterDefault)
+	if err != nil {
+		log.Fatal(err)
+	}
+	background, _, err = ebitenutil.NewImageFromFile("assets/img/background.png", ebiten.FilterDefault)
+	if err != nil {
+		log.Fatal(err)
+	}
+	enemy, _, err = ebitenutil.NewImageFromFile("assets/img/enemy.png", ebiten.FilterDefault)
+	if err != nil {
+		log.Fatal(err)
+	}
+	door, _, err = ebitenutil.NewImageFromFile("assets/img/door.png", ebiten.FilterDefault)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	return nil
+	//sound
+	audioContext, err := audio.NewContext(44100)
+	if err != nil {
+		log.Fatal(err)
+	}
+	jumpSoundFile, err := ebitenutil.OpenFile("assets/sound/jump.mp3")
+	if err != nil {
+		log.Fatal(err)
+	}
+	jumpSound, err := mp3.Decode(audioContext, jumpSoundFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+	jumpPlayer, err = audio.NewPlayer(audioContext, jumpSound)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
@@ -188,6 +168,19 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 }
 
+func (g *Game) Update(screen *ebiten.Image) error {
+	switch g.state {
+	case GameStateMenu:
+		g.updateMenu(screen)
+	case GameStatePlaying:
+		g.updatePlaying()
+		removeEnemies()
+	}
+	g.Draw(screen)
+
+	return nil
+}
+
 func (g *Game) drawMenu(screen *ebiten.Image) {
 	ebitenutil.DrawRect(screen, 0, 0, screenWidth, screenHeight, color.RGBA{R: 0, G: 0, B: 80, A: 150})
 
@@ -197,13 +190,10 @@ func (g *Game) drawMenu(screen *ebiten.Image) {
 		y := screenHeight/2 - 80
 		text.Draw(screen, txt, titleFont, x, y, color.White)
 
-		// text.Draw(screen, txt, customFace, x, y, color.White)
-		// textSize = 30.0
 		for i, pick := range menuOptions {
 			textX := screenWidth/2 - 100
 			textY := screenHeight/2 + 50 + i*50
 			if i == currentMenuOption {
-				// ebitenutil.DebugPrintAt(screen, pick+" <=", textX, textY)
 				text.Draw(screen, ">> "+pick, miscFont, textX, textY, color.White)
 			} else {
 				text.Draw(screen, pick, miscFont, textX, textY, color.White)
@@ -211,7 +201,7 @@ func (g *Game) drawMenu(screen *ebiten.Image) {
 		}
 	} else if !win && len(enemies) == 0 {
 		enemies = []Enemy{}
-		// ebitenutil.DebugPrintAt(screen, "Don't give up...", screenWidth/2-40, screenHeight/2-60)
+
 		txt := "YOU ARE DEAD"
 		txt2 := "Press Enter"
 		x := screenWidth/2 - text.BoundString(titleFont, txt).Max.X/2
@@ -248,41 +238,25 @@ func (g *Game) updateMenu(screen *ebiten.Image) {
 			currentMenuOption = len(menuOptions) - 1
 		}
 	}
-
 	if inpututil.IsKeyJustPressed(ebiten.KeyUp) {
 		currentMenuOption--
 		if currentMenuOption < 0 {
 			currentMenuOption = 0
 		}
 	}
-
 	if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
 		if firstLaunch {
 			enemyVelocity = 5.0
 			switch currentMenuOption {
 			case 0:
-				g.state = GameStatePlaying
-				firstLaunch = false
 			case 1:
 				enemyVelocity += 2.5
-				g.state = GameStatePlaying
-				firstLaunch = false
-				// temp
-				// gravity *= 2
-				// jumpPower *= 2
-				// playerSpeed *= 2
-				// maxSpeed *= 2
 			case 2:
 				enemyVelocity += 5.0
-				g.state = GameStatePlaying
-				firstLaunch = false
-				// temp
-				// gravity *= 3
-				// jumpPower *= 3
-				// playerSpeed *= 3
-				// maxSpeed *= 3
 			}
 			scrollOffset = 0
+			firstLaunch = false
+			g.state = GameStatePlaying
 		} else if enemies == nil {
 			g.state = GameStateMenu
 			firstLaunch = true
@@ -465,11 +439,6 @@ func enemyRecycler(enemies []Enemy) []Enemy {
 }
 
 func collide(a, b vector) bool {
-	playerSizeX := 50.0
-	playerSizeY := 68.0
-	targetSizeX := 49.0
-	targetSizeY := 29.0
-
 	return !(a.X > b.X+targetSizeX ||
 		a.X+playerSizeX < b.X ||
 		a.Y > b.Y+targetSizeY ||
@@ -478,6 +447,7 @@ func collide(a, b vector) bool {
 
 func main() {
 	defer jumpPlayer.Close()
+	currentMenuOption = 0
 
 	game := &Game{
 		state: GameStateMenu,
