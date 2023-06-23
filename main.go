@@ -37,6 +37,12 @@ const (
 	playerSizeY = 68.0
 	enemySizeX = 49.0
 	enemySizeY = 29.0
+
+	gravity            = 0.5
+	jumpPower          = 5
+	playerSpeed        = 2.5
+	maxSpeed           = 5
+
 )
 
 var (
@@ -48,18 +54,15 @@ var (
 	scrollOffset      = 0
 	currentMenuOption = menuOption_easy
 
-	playerPosition  = vector{X: 100, Y: 350}
+	playerOrigin = vector{X: 100, Y: 350}
+	playerPosition  = playerOrigin
 	playerVelocity  = vector{}
 	playerScreenPos = vector{}
 
 	doorPosition = vector{X: backgroundWidth - 300, Y: screenHeight / 2}
 
 	continuousMovement = 0
-	gravity            = 0.5
-	jumpPower          = 5
-	playerSpeed        = 2.5
-	maxSpeed           = 5
-
+	
 	jumpPlayer *audio.Player
 
 	enemies       []Enemy
@@ -102,7 +105,7 @@ func init() {
 	}
 	titleFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
 		Size:    100,
-		DPI:     72,
+		DPI:     DPI,
 		Hinting: font.HintingFull,
 	})
 	if err != nil {
@@ -110,7 +113,7 @@ func init() {
 	}
 	miscFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
 		Size:    40,
-		DPI:     72,
+		DPI:     DPI,
 		Hinting: font.HintingFull,
 	})
 	if err != nil {
@@ -296,7 +299,7 @@ func (g *Game) updatePlaying() {
 			g.state = GameStateMenu
 			win = false
 
-			playerPosition = vector{X: 100, Y: 350}
+			playerPosition = playerOrigin
 
 			break
 		}
@@ -309,7 +312,7 @@ func (g *Game) updatePlaying() {
 		g.state = GameStateMenu
 		win = true
 
-		playerPosition = vector{X: 100, Y: 350}
+		playerPosition = playerOrigin
 
 		return
 	}
@@ -338,9 +341,15 @@ func (g *Game) movePlayer() {
 
 	playerVelocity.X = float64(continuousMovement) * float64(playerSpeed)
 
-	forPlayerPosition := vector{X: playerPosition.X + playerVelocity.X, Y: playerPosition.Y + playerVelocity.Y}
+	forPlayerPosition := vector{
+		X: playerPosition.X + playerVelocity.X,
+		Y: playerPosition.Y + playerVelocity.Y,
+	}
+	forPlayerScreenPos := vector{
+		X: forPlayerPosition.X - float64(scrollOffset),
+		Y: playerScreenPos.Y,
+	}
 
-	forPlayerScreenPos := vector{X: forPlayerPosition.X - float64(scrollOffset), Y: playerScreenPos.Y}
 	if forPlayerScreenPos.X < 0 || forPlayerScreenPos.X > screenWidth {
 		playerVelocity.X = -2 * playerVelocity.X
 	} else {
@@ -363,28 +372,20 @@ func (g *Game) movePlayer() {
 	playerScreenPos.Y = playerPosition.Y
 
 	if playerScreenPos.X < 0 {
-		playerPosition.X = 0
-		playerScreenPos.X = 0
 		if playerVelocity.X < 0 {
 			playerVelocity.X = -2 * playerVelocity.X
 		}
 	} else if playerScreenPos.X > screenWidth {
-		playerPosition.X = screenWidth + float64(scrollOffset)
-		playerScreenPos.X = screenWidth
 		if playerVelocity.X > 0 {
 			playerVelocity.X = -2 * playerVelocity.X
 		}
 	}
 
 	if playerScreenPos.Y < 0 {
-		playerPosition.Y = 0
-		playerScreenPos.Y = 0
 		if playerVelocity.Y < 0 {
 			playerVelocity.Y = -2 * playerVelocity.Y
 		}
 	} else if playerScreenPos.Y > screenHeight-40 {
-		playerPosition.Y = screenHeight - 40
-		playerScreenPos.Y = screenHeight - 40
 		if playerVelocity.Y > 0 {
 			playerVelocity.Y = -2 * playerVelocity.Y
 		}
