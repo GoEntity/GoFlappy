@@ -19,35 +19,33 @@ import (
 )
 
 const (
-	screenWidth     = 1280
-	screenHeight    = 960
-	backgroundWidth = 1280 * 4
-	scrollSpeed     = 2
-
 	GameStateMenu = iota
 	GameStatePlaying
 	GameStateWin
 	GameStateLose
+)
 
-	playerSizeX             = 50.0
-	playerSizeY             = 68.0
-	enemySizeX              = 49.0
-	enemySizeY              = 29.0
+const (
+	screenWidth     = 1280
+	screenHeight    = 960
+	backgroundWidth = 1280 * 4
+	scrollSpeed     = 2
+	playerSizeX     = 50.0
+	playerSizeY     = 68.0
+	enemySizeX      = 49.0
+	enemySizeY      = 29.0
 )
 
 var (
 	continuousMovement = 0
-	gravity   = 0.5
-	jumpPower = 5
-	speed     = 2.5
-	maxSpeed  = 5
-
-	enemies    []Enemy
-	enemySpeed = 5.0
-
-	doorPosition = vector{X: backgroundWidth - 300, Y: screenHeight / 2}
-
-	menuOptions = []string{"EASY", "NORMAL", "DIFFICULT"}
+	gravity            = 0.5
+	jumpPower          = 5
+	speed              = 2.5
+	maxSpeed           = 5
+	enemies            []Enemy
+	enemySpeed         = 5.0
+	doorPosition       = vector{X: backgroundWidth - 300, Y: screenHeight / 2}
+	menuOptions        = []string{"EASY", "NORMAL", "DIFFICULT"}
 )
 
 type vector struct {
@@ -74,8 +72,8 @@ type Game struct {
 	PlayerPosition    vector
 	PlayerVelocity    vector
 	PlayerScreenPos   vector
-	titleFont   font.Face
-	miscFont    font.Face
+	titleFont         font.Face
+	miscFont          font.Face
 }
 
 type Enemy struct {
@@ -519,9 +517,9 @@ func collide(a, b vector) bool {
 
 func main() {
 	game := &Game{
-		state:             GameStateMenu,
-		PlayerOrigin:      vector{X: 100, Y: 350},
-		PlayerPosition:    vector{X: 100, Y: 350},
+		state:          GameStateMenu,
+		PlayerOrigin:   vector{X: 100, Y: 350},
+		PlayerPosition: vector{X: 100, Y: 350},
 	}
 
 	game.currentMenuOption = 0
