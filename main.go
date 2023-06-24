@@ -265,6 +265,50 @@ func (g *Game) Update(screen *ebiten.Image) error{
 	return nil
 }
 
+func (g *Game) updateMenu(screen *ebiten.Image) error {
+	if inpututil.IsKeyJustPressed(ebiten.KeyDown) {
+		g.currentMenuOption++
+		if g.currentMenuOption == 3 {
+			g.currentMenuOption++
+		}
+		if g.currentMenuOption >= len(menuOptions) {
+			g.currentMenuOption = len(menuOptions) - 1
+		}
+	}
+	if inpututil.IsKeyJustPressed(ebiten.KeyUp) {
+		g.currentMenuOption--
+		if g.currentMenuOption == 3 {
+			g.currentMenuOption--
+		}
+		if g.currentMenuOption < 0 {
+			g.currentMenuOption = 0
+		}
+	}
+	if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
+		if g.state == GameStateMenu {
+			enemySpeed = 5.0
+			speed = 2.5
+			switch g.currentMenuOption {
+			case 0:
+				enemySpeed += 2.5
+			case 1:
+				enemySpeed += 5.0
+			case 2:
+				enemySpeed += 11.0
+				speed += 1.0
+			case 4:
+				// os.Exit(0) // doesn't close resources.. doesn't work with defer.. use error instead
+				return errors.New("exit")
+			}
+			g.scrollOffset = 0
+			g.state = GameStatePlaying
+		} else if g.state == GameStateWin || g.state == GameStateLose {
+			g.state = GameStateMenu
+		}
+	}
+	return nil
+}
+
 func (g *Game) drawMenu(screen *ebiten.Image) {
 	ebitenutil.DrawRect(screen, 0, 0, screenWidth, screenHeight, color.RGBA{R: 0, G: 0, B: 80, A: 150})
 
@@ -312,50 +356,6 @@ func (g *Game) drawMenu(screen *ebiten.Image) {
 			g.state = GameStateMenu
 		}
 	}
-}
-
-func (g *Game) updateMenu(screen *ebiten.Image) error {
-	if inpututil.IsKeyJustPressed(ebiten.KeyDown) {
-		g.currentMenuOption++
-		if g.currentMenuOption == 3 {
-			g.currentMenuOption++
-		}
-		if g.currentMenuOption >= len(menuOptions) {
-			g.currentMenuOption = len(menuOptions) - 1
-		}
-	}
-	if inpututil.IsKeyJustPressed(ebiten.KeyUp) {
-		g.currentMenuOption--
-		if g.currentMenuOption == 3 {
-			g.currentMenuOption--
-		}
-		if g.currentMenuOption < 0 {
-			g.currentMenuOption = 0
-		}
-	}
-	if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
-		if g.state == GameStateMenu {
-			enemySpeed = 5.0
-			speed = 2.5
-			switch g.currentMenuOption {
-			case 0:
-				enemySpeed += 2.5
-			case 1:
-				enemySpeed += 5.0
-			case 2:
-				enemySpeed += 11.0
-				speed += 1.0
-			case 4:
-				// os.Exit(0) // doesn't close resources.. doesn't work with defer.. use error instead
-				return errors.New("exit")
-			}
-			g.scrollOffset = 0
-			g.state = GameStatePlaying
-		} else if g.state == GameStateWin || g.state == GameStateLose {
-			g.state = GameStateMenu
-		}
-	}
-	return nil
 }
 
 func (g *Game) drawPlaying(screen *ebiten.Image) {
