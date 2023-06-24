@@ -54,15 +54,12 @@ var (
 	gamePlayer *audio.Player
 	winPlayer  *audio.Player
 	losePlayer *audio.Player
-	hellPlayer *audio.Player
+	hellPlayer *audio.Player	
 
-	scrollOffset      = 0
-	currentMenuOption = menuOption_easy
-
-	playerOrigin    = vector{X: 100, Y: 350}
-	playerPosition  = playerOrigin
-	playerVelocity  = vector{}
-	playerScreenPos = vector{}
+	// playerOrigin    = vector{X: 100, Y: 350}
+	// playerPosition  = playerOrigin
+	// playerVelocity  = vector{}
+	// playerScreenPos = vector{}
 
 	gravity   = PlayerGravity
 	jumpPower = PlayerJumpPower
@@ -89,6 +86,12 @@ type GameState int
 
 type Game struct {
 	state GameState
+	scrollOffset      int
+	currentMenuOption int
+	PlayerOrigin    vector
+	PlayerPosition  vector
+	PlayerVelocity  vector
+	PlayerScreenPos vector
 }
 
 type Enemy struct {
@@ -231,7 +234,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		g.drawMenu(screen)
 	case GameStatePlaying:
 		g.drawPlaying(screen)
-		drawEnemies(screen)
+		g.drawEnemies(screen)
 	case GameStateWin:
 		g.drawMenu(screen)
 	case GameStateLose:
@@ -249,7 +252,7 @@ func (g *Game) Update(screen *ebiten.Image) error {
 		losePlayer.Seek(0)
 		g.updateMenu(screen)
 	case GameStatePlaying:
-		if currentMenuOption == 2 {
+		if g.currentMenuOption == 2 {
 			hellPlayer.Play()
 		} else {
 			gamePlayer.Play()
@@ -288,7 +291,7 @@ func (g *Game) drawMenu(screen *ebiten.Image) {
 		for i, pick := range menuOptions {
 			textX := screenWidth/2 - 100
 			textY := screenHeight/2 + 50 + i*50
-			if i == currentMenuOption {
+			if i == g.currentMenuOption {
 				text.Draw(screen, ">> "+pick, miscFont, textX, textY, color.White)
 			} else {
 				text.Draw(screen, pick, miscFont, textX, textY, color.White)
@@ -325,22 +328,22 @@ func (g *Game) drawMenu(screen *ebiten.Image) {
 
 func (g *Game) updateMenu(screen *ebiten.Image) {
 	if inpututil.IsKeyJustPressed(ebiten.KeyDown) {
-		currentMenuOption++
-		if currentMenuOption >= len(menuOptions) {
-			currentMenuOption = len(menuOptions) - 1
+		g.currentMenuOption++
+		if g.currentMenuOption >= len(menuOptions) {
+			g.currentMenuOption = len(menuOptions) - 1
 		}
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyUp) {
-		currentMenuOption--
-		if currentMenuOption < 0 {
-			currentMenuOption = 0
+		g.currentMenuOption--
+		if g.currentMenuOption < 0 {
+			g.currentMenuOption = 0
 		}
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
 		if g.state == GameStateMenu {
 			enemySpeed = EnemySpeed
 			speed = PlayerSpeed
-			switch currentMenuOption {
+			switch g.currentMenuOption {
 			case 0:
 				enemySpeed += 2.5
 			case 1:
@@ -349,7 +352,7 @@ func (g *Game) updateMenu(screen *ebiten.Image) {
 				enemySpeed += 11.0
 				speed += 1.0
 			}
-			scrollOffset = 0
+			g.scrollOffset = 0
 			g.state = GameStatePlaying
 		} else if g.state == GameStateWin || g.state == GameStateLose {
 			g.state = GameStateMenu
@@ -359,18 +362,18 @@ func (g *Game) updateMenu(screen *ebiten.Image) {
 
 func (g *Game) drawPlaying(screen *ebiten.Image) {
 	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Translate(float64(-scrollOffset), 0)
+	op.GeoM.Translate(float64(-g.scrollOffset), 0)
 	screen.DrawImage(background, op)
 	op = &ebiten.DrawImageOptions{}
-	op.GeoM.Translate(playerScreenPos.X, playerScreenPos.Y)
+	op.GeoM.Translate(g.PlayerScreenPos.X, g.PlayerScreenPos.Y)
 	screen.DrawImage(player, op)
 	op = &ebiten.DrawImageOptions{}
-	op.GeoM.Translate(doorPosition.X-float64(scrollOffset), doorPosition.Y)
+	op.GeoM.Translate(doorPosition.X-float64(g.scrollOffset), doorPosition.Y)
 	screen.DrawImage(door, op)
 }
 
 func (g *Game) updatePlaying() {
-	handleGameInput()
+	g.handleGameInput()
 	g.movePlayer()
 
 	if rand.Intn(100) < 7 { //spawn percent chance
@@ -382,27 +385,27 @@ func (g *Game) updatePlaying() {
 	}
 
 	for _, e := range enemies {
-		if collide(playerPosition, e.Position) {
+		if collide(g.PlayerPosition, e.Position) {
 			//log.Println("check: collision - enemy")
 			enemies = nil
 			g.state = GameStateLose
-			playerPosition = playerOrigin
+			g.PlayerPosition = g.PlayerOrigin
 
 			break
 		}
 	}
 
-	if collide(playerPosition, doorPosition) {
+	if collide(g.PlayerPosition, doorPosition) {
 		//log.Println("check: collision - door")
 		enemies = nil
 		g.state = GameStateWin
-		playerPosition = playerOrigin
+		g.PlayerPosition = g.PlayerOrigin
 
 		return
 	}
 }
 
-func handleGameInput() {
+func (g *Game) handleGameInput() {
 	continuousMovement = 0
 	if ebiten.IsKeyPressed(ebiten.KeyLeft) {
 		continuousMovement = -1
@@ -412,75 +415,75 @@ func handleGameInput() {
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
 		playJumpSound()
-		playerVelocity.Y = -float64(jumpPower)
+		g.PlayerVelocity.Y = -float64(jumpPower)
 	}
 }
 
 func (g *Game) movePlayer() {
-	playerVelocity.Y += float64(gravity)
+	g.PlayerVelocity.Y += float64(gravity)
 
-	if playerVelocity.Y > float64(maxSpeed) {
-		playerVelocity.Y = float64(maxSpeed)
+	if g.PlayerVelocity.Y > float64(maxSpeed) {
+		g.PlayerVelocity.Y = float64(maxSpeed)
 	}
 
-	playerVelocity.X = float64(continuousMovement) * float64(speed)
+	g.PlayerVelocity.X = float64(continuousMovement) * float64(speed)
 
 	forPlayerPosition := vector{
-		X: playerPosition.X + playerVelocity.X,
-		Y: playerPosition.Y + playerVelocity.Y,
+		X: g.PlayerPosition.X + g.PlayerVelocity.X,
+		Y: g.PlayerPosition.Y + g.PlayerVelocity.Y,
 	}
 	forPlayerScreenPos := vector{
-		X: forPlayerPosition.X - float64(scrollOffset),
-		Y: playerScreenPos.Y,
+		X: forPlayerPosition.X - float64(g.scrollOffset),
+		Y: g.PlayerScreenPos.Y,
 	}
 
 	if forPlayerScreenPos.X < 0 || forPlayerScreenPos.X > screenWidth {
-		playerVelocity.X = -2 * playerVelocity.X
+		g.PlayerVelocity.X = -2 * g.PlayerVelocity.X
 	} else {
-		playerPosition.X = forPlayerPosition.X
-		playerScreenPos.X = forPlayerScreenPos.X
+		g.PlayerPosition.X = forPlayerPosition.X
+		g.PlayerScreenPos.X = forPlayerScreenPos.X
 	}
 
-	forPlayerScreenPos = vector{X: playerScreenPos.X, Y: forPlayerPosition.Y}
+	forPlayerScreenPos = vector{X: g.PlayerScreenPos.X, Y: forPlayerPosition.Y}
 	if forPlayerScreenPos.Y < 0 || forPlayerScreenPos.Y > screenHeight-40 {
-		playerVelocity.Y = -2 * playerVelocity.Y
+		g.PlayerVelocity.Y = -2 * g.PlayerVelocity.Y
 	} else {
-		playerPosition.Y = forPlayerPosition.Y
-		playerScreenPos.Y = forPlayerScreenPos.Y
+		g.PlayerPosition.Y = forPlayerPosition.Y
+		g.PlayerScreenPos.Y = forPlayerScreenPos.Y
 	}
 
-	playerPosition.X += playerVelocity.X
-	playerPosition.Y += playerVelocity.Y
+	g.PlayerPosition.X += g.PlayerVelocity.X
+	g.PlayerPosition.Y += g.PlayerVelocity.Y
 
-	playerScreenPos.X = playerPosition.X - float64(scrollOffset)
-	playerScreenPos.Y = playerPosition.Y
+	g.PlayerScreenPos.X = g.PlayerPosition.X - float64(g.scrollOffset)
+	g.PlayerScreenPos.Y = g.PlayerPosition.Y
 
-	if playerScreenPos.X < 0 {
-		if playerVelocity.X < 0 {
-			playerVelocity.X = -2 * playerVelocity.X
+	if g.PlayerScreenPos.X < 0 {
+		if g.PlayerVelocity.X < 0 {
+			g.PlayerVelocity.X = -2 * g.PlayerVelocity.X
 		}
-	} else if playerScreenPos.X > screenWidth {
-		if playerVelocity.X > 0 {
-			playerVelocity.X = -2 * playerVelocity.X
-		}
-	}
-
-	if playerScreenPos.Y < 0 {
-		if playerVelocity.Y < 0 {
-			playerVelocity.Y = -2 * playerVelocity.Y
-		}
-	} else if playerScreenPos.Y > screenHeight-40 {
-		if playerVelocity.Y > 0 {
-			playerVelocity.Y = -2 * playerVelocity.Y
+	} else if g.PlayerScreenPos.X > screenWidth {
+		if g.PlayerVelocity.X > 0 {
+			g.PlayerVelocity.X = -2 * g.PlayerVelocity.X
 		}
 	}
 
-	scrollOffset = int(playerPosition.X) - screenWidth/2
+	if g.PlayerScreenPos.Y < 0 {
+		if g.PlayerVelocity.Y < 0 {
+			g.PlayerVelocity.Y = -2 * g.PlayerVelocity.Y
+		}
+	} else if g.PlayerScreenPos.Y > screenHeight-40 {
+		if g.PlayerVelocity.Y > 0 {
+			g.PlayerVelocity.Y = -2 * g.PlayerVelocity.Y
+		}
+	}
 
-	if scrollOffset < 0 {
-		scrollOffset = 0
-	} else if scrollOffset > backgroundWidth-screenWidth {
-		scrollOffset = backgroundWidth - screenWidth
+	g.scrollOffset = int(g.PlayerPosition.X) - screenWidth/2
+
+	if g.scrollOffset < 0 {
+		g.scrollOffset = 0
+	} else if g.scrollOffset > backgroundWidth-screenWidth {
+		g.scrollOffset = backgroundWidth - screenWidth
 	}
 
 }
@@ -490,10 +493,10 @@ func playJumpSound() {
 	jumpPlayer.Rewind()
 }
 
-func drawEnemies(screen *ebiten.Image) {
+func (g *Game) drawEnemies(screen *ebiten.Image) {
 	for _, e := range enemies {
 		op := &ebiten.DrawImageOptions{}
-		op.GeoM.Translate(e.Position.X-float64(scrollOffset), e.Position.Y)
+		op.GeoM.Translate(e.Position.X-float64(g.scrollOffset), e.Position.Y)
 		screen.DrawImage(enemy, op)
 
 		// ebitenutil.DebugPrintAt(screen, "**", int(e.Position.X-float64(scrollOffset)), int(e.Position.Y))
@@ -531,11 +534,17 @@ func collide(a, b vector) bool {
 }
 
 func main() {
-	currentMenuOption = 0 //menu option init
-
 	game := &Game{
 		state: GameStateMenu,
+		scrollOffset: 0,
+		currentMenuOption: menuOption_easy,
+		PlayerOrigin    : vector{X: 100, Y: 350},
+		PlayerPosition  : vector{X: 100, Y: 350},
+		PlayerVelocity  : vector{},
+		PlayerScreenPos : vector{},
 	}
+
+	game.currentMenuOption = 0
 
 	ebiten.SetWindowTitle("GoFlappy")
 	ebiten.SetWindowSize(screenWidth, screenHeight)
