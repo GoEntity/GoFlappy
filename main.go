@@ -24,38 +24,23 @@ const (
 	backgroundWidth = 1280 * 4
 	scrollSpeed     = 2
 
-	menuOption_easy = iota
-	menuOption_normal
-	menuOption_difficult
-
 	GameStateMenu = iota
 	GameStatePlaying
 	GameStateWin
 	GameStateLose
 
-	playerSizeX = 50.0
-	playerSizeY = 68.0
-	enemySizeX  = 49.0
-	enemySizeY  = 29.0
-	PlayerGravity   = 0.5
-	PlayerJumpPower = 5
-	PlayerSpeed     = 2.5
-	PlayerMaxSpeed  = 5
-	EnemySpeed float64 = 5.0
+	playerSizeX             = 50.0
+	playerSizeY             = 68.0
+	enemySizeX              = 49.0
+	enemySizeY              = 29.0
+	PlayerGravity           = 0.5
+	PlayerJumpPower         = 5
+	PlayerSpeed             = 2.5
+	PlayerMaxSpeed          = 5
+	EnemySpeed      float64 = 5.0
 )
 
 var (
-	player     *ebiten.Image
-	background *ebiten.Image
-	enemy      *ebiten.Image
-	door       *ebiten.Image
-	jumpPlayer *audio.Player
-	menuPlayer *audio.Player
-	gamePlayer *audio.Player
-	winPlayer  *audio.Player
-	losePlayer *audio.Player
-	hellPlayer *audio.Player	
-
 	gravity   = PlayerGravity
 	jumpPower = PlayerJumpPower
 	speed     = PlayerSpeed
@@ -68,8 +53,8 @@ var (
 	enemies    []Enemy
 	enemySpeed = EnemySpeed
 
-	titleFont font.Face
-	miscFont  font.Face
+	titleFont   font.Face
+	miscFont    font.Face
 	menuOptions = []string{"EASY", "NORMAL", "DIFFICULT"}
 )
 
@@ -80,13 +65,23 @@ type vector struct {
 type GameState int
 
 type Game struct {
-	state GameState
+	state             GameState
+	player            *ebiten.Image
+	background        *ebiten.Image
+	enemy             *ebiten.Image
+	door              *ebiten.Image
+	jumpPlayer        *audio.Player
+	menuPlayer        *audio.Player
+	gamePlayer        *audio.Player
+	winPlayer         *audio.Player
+	losePlayer        *audio.Player
+	hellPlayer        *audio.Player
 	scrollOffset      int
 	currentMenuOption int
-	PlayerOrigin    vector
-	PlayerPosition  vector
-	PlayerVelocity  vector
-	PlayerScreenPos vector
+	PlayerOrigin      vector
+	PlayerPosition    vector
+	PlayerVelocity    vector
+	PlayerScreenPos   vector
 }
 
 type Enemy struct {
@@ -95,7 +90,7 @@ type Enemy struct {
 	dirty    bool
 }
 
-func init() {
+func (g *Game) init() {
 	//font
 	coolFont, err := os.ReadFile("assets/fonts/Pixellettersfull.ttf")
 	if err != nil {
@@ -123,19 +118,19 @@ func init() {
 	}
 
 	//img
-	player, _, err = ebitenutil.NewImageFromFile("assets/img/player.png", ebiten.FilterDefault)
+	g.player, _, err = ebitenutil.NewImageFromFile("assets/img/player.png", ebiten.FilterDefault)
 	if err != nil {
 		log.Fatal(err)
 	}
-	background, _, err = ebitenutil.NewImageFromFile("assets/img/background.png", ebiten.FilterDefault)
+	g.background, _, err = ebitenutil.NewImageFromFile("assets/img/background.png", ebiten.FilterDefault)
 	if err != nil {
 		log.Fatal(err)
 	}
-	enemy, _, err = ebitenutil.NewImageFromFile("assets/img/enemy.png", ebiten.FilterDefault)
+	g.enemy, _, err = ebitenutil.NewImageFromFile("assets/img/enemy.png", ebiten.FilterDefault)
 	if err != nil {
 		log.Fatal(err)
 	}
-	door, _, err = ebitenutil.NewImageFromFile("assets/img/door.png", ebiten.FilterDefault)
+	g.door, _, err = ebitenutil.NewImageFromFile("assets/img/door.png", ebiten.FilterDefault)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -153,7 +148,7 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	jumpPlayer, err = audio.NewPlayer(audioContext, jumpSound)
+	g.jumpPlayer, err = audio.NewPlayer(audioContext, jumpSound)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -165,7 +160,7 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	menuPlayer, err = audio.NewPlayer(audioContext, menuSound)
+	g.menuPlayer, err = audio.NewPlayer(audioContext, menuSound)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -177,7 +172,7 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	gamePlayer, err = audio.NewPlayer(audioContext, gameSound)
+	g.gamePlayer, err = audio.NewPlayer(audioContext, gameSound)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -189,7 +184,7 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	losePlayer, err = audio.NewPlayer(audioContext, loseSound)
+	g.losePlayer, err = audio.NewPlayer(audioContext, loseSound)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -201,7 +196,7 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	winPlayer, err = audio.NewPlayer(audioContext, winSound)
+	g.winPlayer, err = audio.NewPlayer(audioContext, winSound)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -213,7 +208,7 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	hellPlayer, err = audio.NewPlayer(audioContext, hellSound)
+	g.hellPlayer, err = audio.NewPlayer(audioContext, hellSound)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -240,35 +235,35 @@ func (g *Game) Draw(screen *ebiten.Image) {
 func (g *Game) Update(screen *ebiten.Image) error {
 	switch g.state {
 	case GameStateMenu:
-		menuPlayer.Play()
-		winPlayer.Pause()
-		winPlayer.Seek(0)
-		losePlayer.Pause()
-		losePlayer.Seek(0)
+		g.menuPlayer.Play()
+		g.winPlayer.Pause()
+		g.winPlayer.Seek(0)
+		g.losePlayer.Pause()
+		g.losePlayer.Seek(0)
 		g.updateMenu(screen)
 	case GameStatePlaying:
 		if g.currentMenuOption == 2 {
-			hellPlayer.Play()
+			g.hellPlayer.Play()
 		} else {
-			gamePlayer.Play()
+			g.gamePlayer.Play()
 		}
-		menuPlayer.Pause()
-		menuPlayer.Seek(0)
+		g.menuPlayer.Pause()
+		g.menuPlayer.Seek(0)
 		g.updatePlaying()
 		removeEnemies()
 	case GameStateWin:
-		gamePlayer.Pause()
-		gamePlayer.Seek(0)
-		hellPlayer.Pause()
-		hellPlayer.Seek(0)
-		winPlayer.Play()
+		g.gamePlayer.Pause()
+		g.gamePlayer.Seek(0)
+		g.hellPlayer.Pause()
+		g.hellPlayer.Seek(0)
+		g.winPlayer.Play()
 		g.updateMenu(screen)
 	case GameStateLose:
-		gamePlayer.Pause()
-		gamePlayer.Seek(0)
-		hellPlayer.Pause()
-		hellPlayer.Seek(0)
-		losePlayer.Play()
+		g.gamePlayer.Pause()
+		g.gamePlayer.Seek(0)
+		g.hellPlayer.Pause()
+		g.hellPlayer.Seek(0)
+		g.losePlayer.Play()
 		g.updateMenu(screen)
 	}
 	return nil
@@ -358,13 +353,13 @@ func (g *Game) updateMenu(screen *ebiten.Image) {
 func (g *Game) drawPlaying(screen *ebiten.Image) {
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(float64(-g.scrollOffset), 0)
-	screen.DrawImage(background, op)
+	screen.DrawImage(g.background, op)
 	op = &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(g.PlayerScreenPos.X, g.PlayerScreenPos.Y)
-	screen.DrawImage(player, op)
+	screen.DrawImage(g.player, op)
 	op = &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(doorPosition.X-float64(g.scrollOffset), doorPosition.Y)
-	screen.DrawImage(door, op)
+	screen.DrawImage(g.door, op)
 }
 
 func (g *Game) updatePlaying() {
@@ -409,7 +404,7 @@ func (g *Game) handleGameInput() {
 		continuousMovement = 1
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
-		playJumpSound()
+		g.playJumpSound()
 		g.PlayerVelocity.Y = -float64(jumpPower)
 	}
 }
@@ -483,16 +478,16 @@ func (g *Game) movePlayer() {
 
 }
 
-func playJumpSound() {
-	jumpPlayer.Play()
-	jumpPlayer.Rewind()
+func (g *Game) playJumpSound() {
+	g.jumpPlayer.Play()
+	g.jumpPlayer.Rewind()
 }
 
 func (g *Game) drawEnemies(screen *ebiten.Image) {
 	for _, e := range enemies {
 		op := &ebiten.DrawImageOptions{}
 		op.GeoM.Translate(e.Position.X-float64(g.scrollOffset), e.Position.Y)
-		screen.DrawImage(enemy, op)
+		screen.DrawImage(g.enemy, op)
 
 		// ebitenutil.DebugPrintAt(screen, "**", int(e.Position.X-float64(scrollOffset)), int(e.Position.Y))
 		// ebitenutil.DebugPrintAt(screen, "**", int(e.Position.X-float64(scrollOffset) + 49), int(e.Position.Y))
@@ -530,16 +525,14 @@ func collide(a, b vector) bool {
 
 func main() {
 	game := &Game{
-		state: GameStateMenu,
-		scrollOffset: 0,
-		currentMenuOption: menuOption_easy,
-		PlayerOrigin    : vector{X: 100, Y: 350},
-		PlayerPosition  : vector{X: 100, Y: 350},
-		PlayerVelocity  : vector{},
-		PlayerScreenPos : vector{},
+		state:             GameStateMenu,
+		PlayerOrigin:      vector{X: 100, Y: 350},
+		PlayerPosition:    vector{X: 100, Y: 350},
 	}
 
 	game.currentMenuOption = 0
+
+	game.init()
 
 	ebiten.SetWindowTitle("GoFlappy")
 	ebiten.SetWindowSize(screenWidth, screenHeight)
