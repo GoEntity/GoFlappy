@@ -537,13 +537,6 @@ func collide(a, b vector) bool {
 }
 
 func main() {
-	defer jumpPlayer.Close()
-	defer menuPlayer.Close()
-	defer winPlayer.Close()
-	defer losePlayer.Close()
-	defer hellPlayer.Close()
-	defer gamePlayer.Close()
-
 	currentMenuOption = 0 //menu option init
 
 	game := &Game{
