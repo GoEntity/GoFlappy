@@ -33,18 +33,14 @@ const (
 	GameStateWin
 	GameStateLose
 
-	DPI = 72
-
 	playerSizeX = 50.0
 	playerSizeY = 68.0
 	enemySizeX  = 49.0
 	enemySizeY  = 29.0
-
 	PlayerGravity   = 0.5
 	PlayerJumpPower = 5
 	PlayerSpeed     = 2.5
 	PlayerMaxSpeed  = 5
-
 	EnemySpeed float64 = 5.0
 )
 
@@ -53,6 +49,12 @@ var (
 	background *ebiten.Image
 	enemy      *ebiten.Image
 	door       *ebiten.Image
+	jumpPlayer *audio.Player
+	menuPlayer *audio.Player
+	gamePlayer *audio.Player
+	winPlayer  *audio.Player
+	losePlayer *audio.Player
+	hellPlayer *audio.Player
 
 	scrollOffset      = 0
 	currentMenuOption = menuOption_easy
@@ -71,19 +73,11 @@ var (
 
 	continuousMovement = 0
 
-	jumpPlayer *audio.Player
-	menuPlayer *audio.Player
-	gamePlayer *audio.Player
-	winPlayer  *audio.Player
-	losePlayer *audio.Player
-	hellPlayer *audio.Player
-
 	enemies    []Enemy
 	enemySpeed = EnemySpeed
 
 	titleFont font.Face
 	miscFont  font.Face
-
 	menuOptions = []string{"EASY", "NORMAL", "DIFFICULT"}
 )
 
@@ -115,7 +109,7 @@ func init() {
 	}
 	titleFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
 		Size:    100,
-		DPI:     DPI,
+		DPI:     72,
 		Hinting: font.HintingFull,
 	})
 	if err != nil {
@@ -123,7 +117,7 @@ func init() {
 	}
 	miscFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
 		Size:    40,
-		DPI:     DPI,
+		DPI:     72,
 		Hinting: font.HintingFull,
 	})
 	if err != nil {
