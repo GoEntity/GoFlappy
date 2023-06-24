@@ -33,28 +33,20 @@ const (
 	playerSizeY             = 68.0
 	enemySizeX              = 49.0
 	enemySizeY              = 29.0
-	PlayerGravity           = 0.5
-	PlayerJumpPower         = 5
-	PlayerSpeed             = 2.5
-	PlayerMaxSpeed          = 5
-	EnemySpeed      float64 = 5.0
 )
 
 var (
-	gravity   = PlayerGravity
-	jumpPower = PlayerJumpPower
-	speed     = PlayerSpeed
-	maxSpeed  = PlayerMaxSpeed
+	continuousMovement = 0
+	gravity   = 0.5
+	jumpPower = 5
+	speed     = 2.5
+	maxSpeed  = 5
+
+	enemies    []Enemy
+	enemySpeed = 5.0
 
 	doorPosition = vector{X: backgroundWidth - 300, Y: screenHeight / 2}
 
-	continuousMovement = 0
-
-	enemies    []Enemy
-	enemySpeed = EnemySpeed
-
-	titleFont   font.Face
-	miscFont    font.Face
 	menuOptions = []string{"EASY", "NORMAL", "DIFFICULT"}
 )
 
@@ -82,6 +74,8 @@ type Game struct {
 	PlayerPosition    vector
 	PlayerVelocity    vector
 	PlayerScreenPos   vector
+	titleFont   font.Face
+	miscFont    font.Face
 }
 
 type Enemy struct {
@@ -100,7 +94,7 @@ func (g *Game) init() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	titleFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
+	g.titleFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
 		Size:    100,
 		DPI:     72,
 		Hinting: font.HintingFull,
@@ -108,7 +102,7 @@ func (g *Game) init() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	miscFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
+	g.miscFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
 		Size:    40,
 		DPI:     72,
 		Hinting: font.HintingFull,
@@ -274,17 +268,17 @@ func (g *Game) drawMenu(screen *ebiten.Image) {
 
 	if g.state == GameStateMenu {
 		txt := "GoFlappy"
-		x := screenWidth/2 - text.BoundString(titleFont, txt).Max.X/2
+		x := screenWidth/2 - text.BoundString(g.titleFont, txt).Max.X/2
 		y := screenHeight/2 - 80
-		text.Draw(screen, txt, titleFont, x, y, color.White)
+		text.Draw(screen, txt, g.titleFont, x, y, color.White)
 
 		for i, pick := range menuOptions {
 			textX := screenWidth/2 - 100
 			textY := screenHeight/2 + 50 + i*50
 			if i == g.currentMenuOption {
-				text.Draw(screen, ">> "+pick, miscFont, textX, textY, color.White)
+				text.Draw(screen, ">> "+pick, g.miscFont, textX, textY, color.White)
 			} else {
-				text.Draw(screen, pick, miscFont, textX, textY, color.White)
+				text.Draw(screen, pick, g.miscFont, textX, textY, color.White)
 			}
 		}
 	} else if g.state == GameStateLose && len(enemies) == 0 {
@@ -292,24 +286,24 @@ func (g *Game) drawMenu(screen *ebiten.Image) {
 
 		txt := "YOU ARE DEAD"
 		txt2 := "Press Enter"
-		x := screenWidth/2 - text.BoundString(titleFont, txt).Max.X/2
+		x := screenWidth/2 - text.BoundString(g.titleFont, txt).Max.X/2
 		y := screenHeight/2 - 60
-		x2 := screenWidth/2 - text.BoundString(miscFont, txt2).Max.X/2
+		x2 := screenWidth/2 - text.BoundString(g.miscFont, txt2).Max.X/2
 		y2 := screenHeight/2 + 30
-		text.Draw(screen, txt, titleFont, x, y, color.RGBA{R: 255, G: 0, B: 0, A: 255})
-		text.Draw(screen, txt2, miscFont, x2, y2, color.White)
+		text.Draw(screen, txt, g.titleFont, x, y, color.RGBA{R: 255, G: 0, B: 0, A: 255})
+		text.Draw(screen, txt2, g.miscFont, x2, y2, color.White)
 		if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
 			g.state = GameStateMenu
 		}
 	} else if g.state == GameStateWin && len(enemies) == 0 {
 		txt := "YOU ARE LEGENDARY"
 		txt2 := "Press Enter"
-		x := screenWidth/2 - text.BoundString(titleFont, txt).Max.X/2
+		x := screenWidth/2 - text.BoundString(g.titleFont, txt).Max.X/2
 		y := screenHeight/2 - 60
-		x2 := screenWidth/2 - text.BoundString(miscFont, txt2).Max.X/2
+		x2 := screenWidth/2 - text.BoundString(g.miscFont, txt2).Max.X/2
 		y2 := screenHeight/2 + 30
-		text.Draw(screen, txt, titleFont, x, y, color.RGBA{R: 0, G: 255, B: 0, A: 255})
-		text.Draw(screen, txt2, miscFont, x2, y2, color.White)
+		text.Draw(screen, txt, g.titleFont, x, y, color.RGBA{R: 0, G: 255, B: 0, A: 255})
+		text.Draw(screen, txt2, g.miscFont, x2, y2, color.White)
 		if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
 			g.state = GameStateMenu
 		}
@@ -331,8 +325,8 @@ func (g *Game) updateMenu(screen *ebiten.Image) {
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
 		if g.state == GameStateMenu {
-			enemySpeed = EnemySpeed
-			speed = PlayerSpeed
+			enemySpeed = 5.0
+			speed = 2.5
 			switch g.currentMenuOption {
 			case 0:
 				enemySpeed += 2.5
