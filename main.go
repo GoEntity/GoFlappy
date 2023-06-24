@@ -56,11 +56,6 @@ var (
 	losePlayer *audio.Player
 	hellPlayer *audio.Player	
 
-	// playerOrigin    = vector{X: 100, Y: 350}
-	// playerPosition  = playerOrigin
-	// playerVelocity  = vector{}
-	// playerScreenPos = vector{}
-
 	gravity   = PlayerGravity
 	jumpPower = PlayerJumpPower
 	speed     = PlayerSpeed
