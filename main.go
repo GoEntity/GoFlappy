@@ -234,8 +234,8 @@ func (g *Game) Update(screen *ebiten.Image) error{
 		g.losePlayer.Pause()
 		g.losePlayer.Seek(0)
 		// g.updateMenu(screen)
-		if err2 := g.updateMenu(screen); err2 != nil {
-			return err2
+		if err := g.updateMenu(screen); err != nil {
+			return err
 		}
 	case GameStatePlaying:
 		if g.currentMenuOption == 2 {
@@ -346,7 +346,7 @@ func (g *Game) updateMenu(screen *ebiten.Image) error {
 				enemySpeed += 11.0
 				speed += 1.0
 			case 4:
-				// os.Exit(0) // doesn't close resources.. doesn't work with defer
+				// os.Exit(0) // doesn't close resources.. doesn't work with defer.. use error instead
 				return errors.New("exit")
 			}
 			g.scrollOffset = 0
@@ -374,7 +374,7 @@ func (g *Game) updatePlaying() {
 	g.handleGameInput()
 	g.movePlayer()
 
-	if rand.Intn(100) < 7 { //spawn percent chance
+	if rand.Intn(100) < 7 {
 		enemy := Enemy{
 			Position: vector{X: float64(backgroundWidth), Y: rand.Float64() * screenHeight},
 			Velocity: enemySpeed + rand.Float64()*3,
@@ -382,7 +382,8 @@ func (g *Game) updatePlaying() {
 		enemies = append(enemies, enemy)
 	}
 
-	for _, e := range enemies {
+	for i, e := range enemies {
+		enemies[i].Position.X -= enemies[i].Velocity
 		if collide(g.PlayerPosition, e.Position) {
 			//log.Println("check: collision - enemy")
 			enemies = nil
@@ -506,8 +507,7 @@ func (g *Game) drawEnemies(screen *ebiten.Image) {
 
 func removeEnemies() {
 	for i := range enemies {
-		enemies[i].Position.X -= enemies[i].Velocity
-		if enemies[i].Position.X < -20 {
+		if enemies[i].Position.X < 0 {
 			enemies[i].dirty = true
 		}
 	}
@@ -515,13 +515,13 @@ func removeEnemies() {
 }
 
 func enemyRecycler(enemies []Enemy) []Enemy {
-	filtered := enemies[:0]
+	recycled := enemies[:0]
 	for _, e := range enemies {
 		if !e.dirty {
-			filtered = append(filtered, e)
+			recycled = append(recycled, e)
 		}
 	}
-	return filtered
+	return recycled
 }
 
 func collide(a, b vector) bool {
