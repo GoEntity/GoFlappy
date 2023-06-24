@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"image/color"
 	"log"
 	"os"
@@ -45,7 +46,7 @@ var (
 	enemies            []Enemy
 	enemySpeed         = 5.0
 	doorPosition       = vector{X: backgroundWidth - 300, Y: screenHeight / 2}
-	menuOptions        = []string{"EASY", "NORMAL", "DIFFICULT"}
+	menuOptions        = []string{"EASY", "NORMAL", "DIFFICULT", "", "EXIT"}
 )
 
 type vector struct {
@@ -224,7 +225,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 }
 
-func (g *Game) Update(screen *ebiten.Image) error {
+func (g *Game) Update(screen *ebiten.Image) error{
 	switch g.state {
 	case GameStateMenu:
 		g.menuPlayer.Play()
@@ -232,7 +233,10 @@ func (g *Game) Update(screen *ebiten.Image) error {
 		g.winPlayer.Seek(0)
 		g.losePlayer.Pause()
 		g.losePlayer.Seek(0)
-		g.updateMenu(screen)
+		// g.updateMenu(screen)
+		if err2 := g.updateMenu(screen); err2 != nil {
+			return err2
+		}
 	case GameStatePlaying:
 		if g.currentMenuOption == 2 {
 			g.hellPlayer.Play()
@@ -274,7 +278,9 @@ func (g *Game) drawMenu(screen *ebiten.Image) {
 			textX := screenWidth/2 - 100
 			textY := screenHeight/2 + 50 + i*50
 			if i == g.currentMenuOption {
-				text.Draw(screen, ">> "+pick, g.miscFont, textX, textY, color.White)
+				if i != 3 {
+					text.Draw(screen, ">> "+pick, g.miscFont, textX, textY, color.White)
+				}
 			} else {
 				text.Draw(screen, pick, g.miscFont, textX, textY, color.White)
 			}
@@ -308,15 +314,21 @@ func (g *Game) drawMenu(screen *ebiten.Image) {
 	}
 }
 
-func (g *Game) updateMenu(screen *ebiten.Image) {
+func (g *Game) updateMenu(screen *ebiten.Image) error {
 	if inpututil.IsKeyJustPressed(ebiten.KeyDown) {
 		g.currentMenuOption++
+		if g.currentMenuOption == 3 {
+			g.currentMenuOption++
+		}
 		if g.currentMenuOption >= len(menuOptions) {
 			g.currentMenuOption = len(menuOptions) - 1
 		}
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyUp) {
 		g.currentMenuOption--
+		if g.currentMenuOption == 3 {
+			g.currentMenuOption--
+		}
 		if g.currentMenuOption < 0 {
 			g.currentMenuOption = 0
 		}
@@ -333,6 +345,9 @@ func (g *Game) updateMenu(screen *ebiten.Image) {
 			case 2:
 				enemySpeed += 11.0
 				speed += 1.0
+			case 4:
+				// os.Exit(0) // doesn't close resources.. doesn't work with defer
+				return errors.New("exit")
 			}
 			g.scrollOffset = 0
 			g.state = GameStatePlaying
@@ -340,6 +355,7 @@ func (g *Game) updateMenu(screen *ebiten.Image) {
 			g.state = GameStateMenu
 		}
 	}
+	return nil
 }
 
 func (g *Game) drawPlaying(screen *ebiten.Image) {
