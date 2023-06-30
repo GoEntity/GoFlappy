@@ -9,7 +9,7 @@ https://github.com/GoEntity/GoFlappy/assets/116807050/bd5183ca-d19c-437c-bc96-4d
 => go to `Issues` or `Discussions` tab and open a thread
 <h2>What is This</h2>
 A simple Go game made with Ebitengine <br>
-Engine used: https://github.com/hajimehoshi/ebiten ---v1.12.12--- v2
+Engine used: https://github.com/hajimehoshi/ebiten ~~v1.12.12~~ v2
 
 <h2>Downloads</h2>
 1. 💖💖💖<a href="https://goentity.itch.io/goflappy">free or DONATE on download</a>💖💖💖 <br>
