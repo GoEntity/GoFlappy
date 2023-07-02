@@ -8,8 +8,6 @@ require (
 )
 
 require (
-	github.com/GoEntity/godotify v1.2.0 // indirect
-	github.com/disintegration/imaging v1.6.2 // indirect
 	github.com/ebitengine/purego v0.3.2 // indirect
 	github.com/go-gl/glfw/v3.3/glfw v0.0.0-20221017161538-93cebf72946b // indirect
 	github.com/hajimehoshi/go-mp3 v0.3.4 // indirect
